@@ -1,0 +1,63 @@
+
+function V_rot = rotacion_polar( V, dFi, dTheta )
+% Nota: no me gusta como va la funcion cart2pol, en el plano ZY da
+% resultados correctos con lo que en la ayuda es Theta, pero la Z va mal :(
+
+norm_V = norm(V);
+
+if norm_V == 0
+    V_rot = [0, 0 , 0];
+    return
+end 
+
+if V(2) == 0 && V(1) >= 0
+    Fi = 0;
+elseif V(2) == 0 && V(1) < 0
+    Fi = pi / 2;
+else
+% Mismo angulo si x < 0 y y < 0 que si x > 0 y y > 0, me parece bien 
+% pues es necesaria la misma rotacion para alinearse con un eje
+    Fi = atan( V(2) / V(1) );
+
+% Obtener angulo de 360º
+    if V(1) < 0  && V(2) > 1
+        Fi = pi + Fi;         % Fi original negativo
+    elseif V(1) < 0 && V(2) < 0
+        Fi = pi + Fi;         % Fi original positivo
+    elseif V(1) > 0 && V(2) < 0 % Ahora no puedo permitir un angulo negativo
+        Fi = 2*pi + Fi;       % Fi original negativo  
+    end 
+end 
+        
+
+XY = [V(1)  V(2)];
+
+norm_XY = norm(XY);
+
+if norm_XY == 0 
+    if V(3) >= 0
+        Theta = pi/2;
+    else
+        Theta = -pi/2;
+    end 
+else     
+    
+    Theta = atan( V(3) / norm_XY );
+
+end 
+
+% Rotamos los angulos    
+Fi = Fi + dFi;
+  
+Theta = Theta + dTheta;
+    
+V_rot = [ cos(Fi) * cos(Theta), sin(Fi) * cos(Theta), sin(Theta)  ];
+
+V_rot = norm_V * V_rot;
+
+
+% En Matlab un lio entre minusculas y mayusculas puede joderlo todo :(
+
+% Pruebas hechas en el eje XY sobre los 4 cuadrantes
+% Pruebas incluyendo el eje Z van bien y se comprueba que al pasar los 90º
+% y los 270ª el signo de las coordenadas XY se invierte.
