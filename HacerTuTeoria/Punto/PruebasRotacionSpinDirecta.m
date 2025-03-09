@@ -30,6 +30,17 @@ clear;
 % dir_rotada = SpinorToVector(sp_rot')
 
 
+% Para servir a Probauras_finales_Dirac_en_potencial_central. (poco servira
+% esto si es con spinors de Pauli).
+%  spinor = [1, 0];
+%  dir_origen = SpinorToVector(spinor)
+%  eje = [1, 0, 0];
+%  radianes = 0.01;
+%  sp_rot = RotacionSpin(spinor, eje, radianes)
+%  dir_rotada = SpinorToVector(sp_rot')
+%  dif = sp_rot.' - spinor
+ 
+
 % Ahora con boosts!
 
 % spinor = [1, 0];
@@ -77,21 +88,21 @@ p0 = [0, 0, 0];
 % vy --> bispinor_boost = 1.0518         0    0.2306   -0.2306i
 
 
-spin_base = [1, 0];   
-bispinor = DiracSpinorPlainWave(p0, spin_base)
-%v = [0.3, 0.3, 0.01];
-%v = -[0.3, 0.3, 0.01];
-v = -[0.6, 0.4, -0.3];
-bispinor_boost = BoostBispinor(bispinor, v);
-ph_rot = bispinor_boost(1:2);
-dir_principal = SpinorToVector(ph_rot')
-ph_helic = bispinor_boost(3:4);
-dir_helicidad = SpinorToVector(ph_helic')
-Sigma = fGamma(v);
-bispinor_boost = bispinor_boost.'
-bispinor_esperado = DiracSpinorPlainWave(Sigma*v, spin_base)
-chequeo_espero_sea_0 = bispinor_boost(4)/bispinor_boost(1) - bispinor_esperado(4)/bispinor_esperado(1);
-dir_helicidad_esperada = SpinorToVector(bispinor_esperado(3:4))
+%spin_base = [1, 0];   
+% bispinor = DiracSpinorPlainWave(p0, spin_base)
+% %v = [0.3, 0.3, 0.01];
+% %v = -[0.3, 0.3, 0.01];
+% v = -[0.6, 0.4, -0.3];
+% bispinor_boost = BoostBispinor(bispinor, v);
+% ph_rot = bispinor_boost(1:2);
+% dir_principal = SpinorToVector(ph_rot')
+% ph_helic = bispinor_boost(3:4);
+% dir_helicidad = SpinorToVector(ph_helic')
+% Sigma = fGamma(v);
+% bispinor_boost = bispinor_boost.'
+% bispinor_esperado = DiracSpinorPlainWave(Sigma*v, spin_base)
+% chequeo_espero_sea_0 = bispinor_boost(4)/bispinor_boost(1) - bispinor_esperado(4)/bispinor_esperado(1);
+% dir_helicidad_esperada = SpinorToVector(bispinor_esperado(3:4))
 % Dos boosts de velocidade opuestas dan lugar a la misma helicidad, pero la
 % fase del segundo  spinor es opuesta para cada una de las velocidades.
 % con v positiva: 1.0258 + 0.0000i   0.0000 + 0.0000i   0.0054 + 0.0000i   0.1615 + 0.1615i
@@ -124,6 +135,21 @@ dir_helicidad_esperada = SpinorToVector(bispinor_esperado(3:4))
 % Ahora va bien con la fórmula de la wikipedia (no como los boosts).
 
 
+% Soporte a las probaturas finales del potencial central:
+ spin_base = [1, 0];   
+ bispinor = DiracSpinorPlainWave(p0, spin_base)
+ % Viene del potencial central.
+ %bispinor = [1.0000,    0,   0,  -1i * 0.0036]
+ eje = [1, 0, 0];
+ radianes = 0.01;
+ bispinor_rot = RotacionBispinor(bispinor, eje, radianes)
+ sp_rot = bispinor_rot(1:2);
+ dir_rotada = SpinorToVector(sp_rot')
+ dif = bispinor_rot.' - bispinor
+ % dif es [0, 0.005i, 0, 0] para la onda plana
+ % dif es [0, 0.005i, 0, 0.0072i] para la onda del potencial central.
+
+ 
 % p1 = [0, 0.4, 0];
 % spin_base = [1, 0];   
 % bispinor = DiracSpinorPlainWave(p1, spin_base)

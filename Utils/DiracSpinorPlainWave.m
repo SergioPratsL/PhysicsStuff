@@ -19,10 +19,10 @@ E = sqrt(norm(p)^2 + 1);
 
 factor_norm = sqrt((E+1)/2);
 
-SmallBispinor = ( P_Dot_PauliVector * fi' ) / (E+1);
+SmallBispinor = ( P_Dot_PauliVector * fi.' ) / (E+1);
 
 if negativo ~= -1
-    DSp = factor_norm * [fi, SmallBispinor'];
+    DSp = factor_norm * [fi, SmallBispinor.'];
 else
     DSp = factor_norm * [SmallBispinor' ,fi];
 end

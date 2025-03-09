@@ -43,7 +43,7 @@ clear;
 % onda con su bispinor y su fase es solución del Hamiltoniano).
 % H*Phi = E*Phi
 
- spinor_base = [1, 0];   
+ spinor_base = [1, 0];
 %v = [0, 0, 0];             % OK
 %v = [0.4, 0, 0];           % OK
 %v = [0, 0, 0.4];           % OK
@@ -361,13 +361,13 @@ spinor_base = [1, 0];   %Z
 spinor_base = [1, 0];   %Z
 
 %%% dir_dif_"no_norm", spoiler: siempre estuvo normalizada.
-% dir_dif_no_norm = [1,0,0];
-% v = [0.4, 0, 0];
-% Resultado: todo 0 como era de esperar.
+ %dir_dif_no_norm = [1,0,0];
+ %v = [0, 0.4, 0];
+% Resultado: d_dv = -2
 
 % dir_dif_no_norm = [0,1,0];
 % v = [0, 0.4, 0];
-% Resultado: todo 0 como era de esperar.
+% Resultado: d_dens_prob: -0.8  d_dv = -1.68
 
 % dir_dif_no_norm = [1,0,0];
 % v = [0, 0, 0];
@@ -377,24 +377,23 @@ spinor_base = [1, 0];   %Z
 % v = [0, 0, 0];
 % Resultado: d_vx = -2
 
- dir_dif_no_norm = [0,0,1];
- v = [0, 0, 0];
+%dir_dif_no_norm = [0,0,1];
+%v = [0, 0, 0];
 % Resulado: d_vz = -2
 
-dir_dif = NormalizaCustom(dir_dif_no_norm, 1);
-p = fGamma(v) * v;
-E = sqrt(1+norm(p)^2);
-  
-bispinor = DiracSpinorPlainWave(p, spinor_base);
- 
-gv = dir_dif(1)*gx + dir_dif(2)*gy + dir_dif(3)*gz;
-
-%dif_Phi = -1i * (gt * gv * bispinor')';
-dif_Phi = -(gt * gv * bispinor')';
-
-[d_dens_prob, d_vx, d_vy, d_vz, d_sx, d_sy, d_sz] = ObtenVariacionPropiedadesIntrinsecas(bispinor, dif_Phi);
-
-dif_props_intrinsecas = [d_dens_prob, d_vx, d_vy, d_vz, d_sx, d_sy, d_sz]
+% dir_dif = NormalizaCustom(dir_dif_no_norm, 1);
+% p = fGamma(v) * v;
+% E = sqrt(1+norm(p)^2);
+%   
+% bispinor = DiracSpinorPlainWave(p, spinor_base);
+%  
+% gv = dir_dif(1)*gx + dir_dif(2)*gy + dir_dif(3)*gz;
+% 
+% dif_Phi = -(gt * gv * bispinor')';
+% 
+% [d_dens_prob, d_vx, d_vy, d_vz, d_sx, d_sy, d_sz] = ObtenVariacionPropiedadesIntrinsecas(bispinor, dif_Phi);
+% 
+% dif_props_intrinsecas = [d_dens_prob, d_vx, d_vy, d_vz, d_sx, d_sy, d_sz]
 
 
 % Prueba 6: esta es diferente a la otras: ver que propiedades intrínsecas
@@ -414,40 +413,80 @@ spinor_base = [1, 0];   %Z
 % cuatro_momento_trucado = 0.9165         0         0    0.4364
 % Esto ha de estar terminantemente prohibido!
 
-% p = fGamma(v) * v;
-% E = sqrt(1+norm(p)^2);
-%   
-% bispinor = DiracSpinorPlainWave(p, spinor_base);
-% 
-% bispinor_trucado = [bispinor(1:2), 1i*bispinor(3:4)];
-% 
-% [jt, jx, jy, jz]  = ObtenCorrientesBispinor(bispinor);
-% 
-% corrientes_intrinsecas = [jt, jx, jy, jz]
-% 
-% grad_Phi = ObtenGradienteOndaPlanaAnomala(bispinor, [E, p]);
-% 
-% [pt, px, py, pz] = ObtenEnergiaMomento(bispinor, grad_Phi);
-% 
-% cuatro_momento = [pt, px, py, pz]
-% 
-% [jt_tr, jx_tr, jy_tr, jz_tr]  = ObtenCorrientesBispinor(bispinor_trucado);
-% 
+%v = [0, 0.4, 0];
+v = [0.35, 0.4, -0.5];
+
+p = fGamma(v) * v;
+E = sqrt(1+norm(p)^2);
+  
+bispinor = DiracSpinorPlainWave(p, spinor_base);
+
+%%%bispinor_trucado = [bispinor(1:2), 1i*bispinor(3:4)];
+
+[jt, jx, jy, jz]  = ObtenCorrientesBispinor(bispinor);
+
+corrientes_intrinsecas = [jt, jx, jy, jz]
+
+grad_Phi = ObtenGradienteOndaPlana(bispinor, [E, p]);
+
+[pt, px, py, pz] = ObtenEnergiaMomentoPruebas(bispinor, grad_Phi);
+
+cuatro_momento = [pt, px, py, pz]
+
+%[jt_tr, jx_tr, jy_tr, jz_tr]  = ObtenCorrientesBispinor(bispinor_trucado);
+%
 % corrientes_trucadas = [jt_tr, jx_tr, jy_tr, jz_tr]
 % 
-% grad_Phi_trucado = ObtenGradienteOndaPlanaAnomala(bispinor_trucado, [E, p]);
+% grad_Phi_trucado = ObtenGradienteOndaPlana(bispinor_trucado, [E, p]);
 % 
-% [pt_truc, px_truc, py_truc, pz_truc, dPhi_dt_verdadero] = ObtenEnergiaMomento(bispinor_trucado, grad_Phi_trucado);
+% [pt_truc, px_truc, py_truc, pz_truc, dPhi_dt_verdadero] = ObtenEnergiaMomentoPruebas(bispinor_trucado, grad_Phi_trucado);
 % 
 % cuatro_momento_trucado = [pt_truc, px_truc, py_truc, pz_truc]
-% 
-% 
+
+ 
 % [d_dens_prob, d_vx, d_vy, d_vz, d_sx, d_sy, d_sz] = ObtenVariacionPropiedadesIntrinsecas(bispinor, dPhi_dt_verdadero);
 % 
 % variacion_props_intrinsecas_onda_trucada = [d_dens_prob, d_vx, d_vy, d_vz, d_sx, d_sy, d_sz]
+ 
 
 
+% dPhi_dt_verdadero es necesario para acabar con el fraude! 
+function [pt, px, py, pz] = ObtenEnergiaMomentoPruebas(phi, grad_Phi)
+    
+    dPhi_dt = grad_Phi(1,:);
+    dPhi_dx = grad_Phi(2,:);
+    dPhi_dy = grad_Phi(3,:);
+    dPhi_dz = grad_Phi(4,:);
+    
+    dens_prob = norm(phi)^2;
+    
+    phi_conj = conj(phi);
+    
+    pt = -1i * (phi_conj * dPhi_dt.')' / dens_prob;
+    px = 1i *(phi_conj * dPhi_dx.')' / dens_prob;
+    py = 1i *(phi_conj * dPhi_dy.')' / dens_prob;
+    pz = 1i *(phi_conj * dPhi_dz.')' / dens_prob;
+    
+    %Hacer las cosas bien...
+    [at, ax, ay, az] = MatricesAlfa();
+    gt = MatrizGamma(0); 
+    
+    % El ultimo termino es el efecto de la masa.
+    dPhi_dt_verdadero = ((ax * dPhi_dx.' + ay * dPhi_dy.' + az * dPhi_dz.') + 1i * gt * phi.').';
+    % Con este valor está manifiestamente mal, hay que añadir el gt a la masa.
+    % dPhi_dt_verdadero = ((ax * dPhi_dx.' + ay * dPhi_dy.' + az * dPhi_dz.') + 1i *  phi.').';     
+    
+    dif_dt = dPhi_dt_verdadero - dPhi_dt;
 
+    % Debug
+%     ratio1 = -i * dPhi_dt_verdadero(1) / phi(1)
+%     ratio2 = -i * dPhi_dt_verdadero(2) / phi(2)
+%     ratio3 = -i * dPhi_dt_verdadero(3) / phi(3)
+%     ratio4 = -i * dPhi_dt_verdadero(4) / phi(4)
+    
+    pt = -1i * (phi_conj * dPhi_dt_verdadero.') / dens_prob;  
+    
+end
 
 % Esta es la función que da los resultados importantes en las pruebas 2,3,4
 function [d_dens_prob_unitaria, d_vx, d_vy, d_vz, d_sx, d_sy, d_sz] = ObtenVariacionPropiedadesIntrinsecas(Phi_ori, dPhi_ori)
@@ -516,20 +555,6 @@ function [d_dens_prob_unitaria, d_vx, d_vy, d_vz, d_sx, d_sy, d_sz] = ObtenVaria
     d_dens_prob_unitaria = 2 * real(d_dens_prob_unitaria);
 end
 
-
-function [jt, jx, jy, jz] = ObtenCorrientesBispinor(Phi_ori)
-    
-    Phi = Phi_ori';
-
-    [alfa_t, alfa_x, alfa_y, alfa_z] = MatricesAlfa();
-    
-    jt = Phi' * alfa_t * Phi;
-    jx = Phi' * alfa_x * Phi;
-    jy = Phi' * alfa_y * Phi;
-    jz = Phi' * alfa_z * Phi;    
-
-end
-
 function dPhi = ObtenDiferencialMomento(bispinor, p, dp)
 
     spinor_A = bispinor(1:2);
@@ -560,10 +585,8 @@ function dPhi = ObtenDiferencialMomento(bispinor, p, dp)
 end
 
 function dPhi = ObtenDiferencialRotacion(bispinor, p, eje_rotacion)
-
-    [PauliX, PauliY, PauliZ] = MatricesPauli();
     
-    operador_rotacion = 1i * 0.5 * (eje_rotacion(1)*PauliX + eje_rotacion(2)*PauliY + eje_rotacion(3)*PauliZ);
+    operador_rotacion = 1i * 0.5 * PauliVectorEscalarProd(eje_rotacion);
     
     spinor_A_norm = bispinor(1:2) / norm(bispinor(1:2));
     
@@ -573,37 +596,7 @@ function dPhi = ObtenDiferencialRotacion(bispinor, p, eje_rotacion)
 
 end
 
-% dPhi_dt_verdadero es necesario para acabar con el fraude! 
-function [pt, px, py, pz, dPhi_dt_verdadero] = ObtenEnergiaMomento(phi, grad_Phi)
-    
-    dPhi_dt = grad_Phi(1,:);
-    dPhi_dx = grad_Phi(2,:);
-    dPhi_dy = grad_Phi(3,:);
-    dPhi_dz = grad_Phi(4,:);
-    
-    dens_prob = norm(phi)^2;
-    
-    pt = 1i * (phi * dPhi_dt')' / dens_prob;
-    px = -1i *(phi * dPhi_dx')' / dens_prob;
-    py = -1i *(phi * dPhi_dy')' / dens_prob;
-    pz = -1i *(phi * dPhi_dz')' / dens_prob;
-    
-    %Hacer las cosas bien...
-    [at, ax, ay, az] = MatricesAlfa();
-    gt = MatrizGamma(0);
-    
-    % El ultimo termino es el efecto de la masa.
-    dPhi_dt_verdadero = (-(ax * dPhi_dx' + ay * dPhi_dy' + az * dPhi_dz') + 1i * gt * phi')';
-    
-    dif_dt = dPhi_dt_verdadero - dPhi_dt;
-    
-    pt = 1i * (phi * dPhi_dt_verdadero.') / dens_prob;  
-    
-end
-
-% Se llama Anomala porque la idea es que Phi no se corresponda a la onda 
-% plana exacta que corresponderia para p4. ¡p4 jamas anomalo!
-function grad_Phi = ObtenGradienteOndaPlanaAnomala(Phi, p4)
+function grad_Phi = ObtenGradienteOndaPlana(Phi, p4)
 
     dPhi_dt = -1i * Phi * p4(1);
     dPhi_dx = 1i * Phi * p4(2);

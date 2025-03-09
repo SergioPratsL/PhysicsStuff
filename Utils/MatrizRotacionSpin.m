@@ -4,11 +4,7 @@ function MatrizRotacion = MatrizRotacionSpin(eje, radianes)
 
 factor = 1i * eje * (radianes/2);
 
-pl_x = MatrizPauli(1);
-pl_y = MatrizPauli(2);
-pl_z = MatrizPauli(3);
-
-M = pl_x*factor(1) + pl_y*factor(2) + pl_z*factor(3);
+M = PauliVectorEscalarProd(factor);
 
 MatrizRotacion = ExponencialMatriz(M, 0);
 
