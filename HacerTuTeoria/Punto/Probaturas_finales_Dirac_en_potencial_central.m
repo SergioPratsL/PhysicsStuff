@@ -15,15 +15,18 @@ radio_bohr = 4*pi*perme*h_bar^2 / (m_elec*c_elec^2);
 % nr = 0, espero.
 denom_peq = sqrt(1 - cte_fina^2)^2;
 denom = sqrt(1 + cte_fina^2 / denom_peq);
-E_elec_lv1 = m_elec * c^2 / denom
+E_lv1 = m_elec * c^2 / denom;
 
 E_reposo = m_elec * c^2;
 
-k1 = (E_reposo + E_elec_lv1)/(h_bar*c);
-k2 = (E_reposo - E_elec_lv1)/(h_bar*c);
+dif_elec_lv1 = E_lv1 - E_reposo
+
+k1 = (E_reposo + E_lv1)/(h_bar*c);
+k2 = (E_reposo - E_lv1)/(h_bar*c);
 
 factor_rho = sqrt(k1*k2);
 
+%k_rara = -1;     % por h_bar.
 k_rara = 1;     % por h_bar.
 factor_s = sqrt(k_rara^2 - cte_fina^2);
 %factor_s_simplificado = 1 - cte_fina * sqrt(k2/k1)
@@ -33,8 +36,18 @@ factor_s = sqrt(k_rara^2 - cte_fina^2);
 
 
 spinor_base = [1, 0];
+% Poner una fase arbiraria.
+fase = 1;
+%fase = 3 + 2*i;
+% FALLA Y ME PARECE QUE ES EL FIN, LOS AUTOVECTORES DEL ÁTOMO DE HIDRÓGENO
+% CON DIRAC SON UNA FARSA!
+fase = fase / norm(fase);
 
-r = 1 * radio_bohr;
+%r = radio_bohr;
+%r = 0.5*radio_bohr;
+r = 2*radio_bohr;
+
+%r = 1 * radio_bohr;
 %corrientes_intrinsecas =  1.0000         0   -0.0076         0
 % Contrib_H_Q =  5.9003e-19
 % corrientes_intrinsecas en Z = 1     0     0     0
@@ -62,7 +75,7 @@ r = 1 * radio_bohr;
 %dir_e1 = [0,1,1] / norm([0,1,1]);
 %dir_e2 = cross(dir, dir_e1);
 
-bispinor_base = MontaBispinorBase(spinor_base, k1, k2, dir);
+bispinor_base = MontaBispinorBase(spinor_base, k1, k2, dir, fase);
 
 bispinor = ObtenBispinor(r, factor_rho, factor_s, bispinor_base);
 
@@ -72,29 +85,54 @@ corrientes_intrinsecas = [jt, jx, jy, jz] / jt
 
 dPhi_dr = ObtenDerivadaRadialSpinors(r, factor_rho, factor_s, bispinor);
 
-dPhi_e1 = ObtenDerivadaDirNoRadialSpinorPequeno(bispinor, spinor_base,dir_e1, r);
-dPhi_e2 = ObtenDerivadaDirNoRadialSpinorPequeno(bispinor, spinor_base,dir_e2, r);
+dPhi_e1 = ObtenDerivadaDirNoRadialSpinorPequeno(bispinor, spinor_base, dir_e1, r);
+dPhi_e2 = ObtenDerivadaDirNoRadialSpinorPequeno(bispinor, spinor_base, dir_e2, r);
 
 
-dPhi_x = dPhi_dr*dir(1) + dPhi_e1*dir_e1(1) + dPhi_e2*dir_e2(1);
-dPhi_y = dPhi_dr*dir(2) + dPhi_e1*dir_e1(2) + dPhi_e2*dir_e2(2);
-dPhi_z = dPhi_dr*dir(3) + dPhi_e1*dir_e1(3) + dPhi_e2*dir_e2(3);
+dPhi_dx = (dPhi_dr*dir(1) + dPhi_e1*dir_e1(1) + dPhi_e2*dir_e2(1)).';
+dPhi_dy = (dPhi_dr*dir(2) + dPhi_e1*dir_e1(2) + dPhi_e2*dir_e2(2)).';
+dPhi_dz = (dPhi_dr*dir(3) + dPhi_e1*dir_e1(3) + dPhi_e2*dir_e2(3)).';
 
-Contrib_H_Q = ObtenAportacionHamiltonianoDerivadasEspaciales(bispinor, dPhi_x, dPhi_y, dPhi_z, h_bar, c)
+Contrib_H_Q = ObtenAportacionHamiltonianoDerivadasEspaciales(bispinor, dPhi_dx, dPhi_dy, dPhi_dz, h_bar, c, jt)
 
-Contrib_H_V = ObtenAportacionHamiltonianoPotencial(r, c_elec, perme, jt)
+Contrib_H_V = ObtenAportacionHamiltonianoPotencial(r, c_elec, perme)
 
-grad_espacial_Phi = [dPhi_x; dPhi_y; dPhi_z];
 E_V = -c_elec/(4*pi*perme) * c_elec / r;
 A = [E_V, 0, 0,0 ];
 
 
-[pt, px, py, pz] = ObtenEnergiaMomentoConUds(bispinor, grad_espacial_Phi, A, m_elec, c, h_bar)
+[pt, px, py, pz] = ObtenEnergiaMomentoConUds(bispinor, dPhi_dx, dPhi_dy, dPhi_dz, A, m_elec, c, h_bar, jt);
 
-E_Mom = [pt, px, py, pz];
+E_Mom = [pt, px, py, pz]
+
+momento_normalizado_a_energia = [px, py, pz] / pt;
+
+dif_energia = pt - E_reposo;
 
 
-function [pt, px, py, pz] = ObtenEnergiaMomentoConUds(phi, grad_espacial_Phi, A, m, c, h_bar)
+% OK. Las diferencias obtenidas son relativamente pequeñas (< 10^-4) 
+% para diferentes valores del radio: 0.5, 1 y 2 rbohr. :)
+CompruebaEqDiferenciales(k1, k2, factor_rho, factor_s, r, m_elec, c, E_lv1, h_bar, E_V)
+
+
+function CompruebaEqDiferenciales(k1, k2, factor_rho, factor_s, r, m_elec, c, E_lv1, h_bar, V)
+    G = 1;
+    F = sqrt(k2 / k1);
+    
+    factor_dr = -(factor_s / r - factor_rho );
+    
+    h_bar_c = h_bar * c;
+    
+    E_reposo = m_elec * c^2;
+
+    K = 1;
+
+    dif_eq_1 = (factor_dr - K*(1/r))*F - (E_reposo - E_lv1 + V)*(G/h_bar_c);
+    dif_eq_2 = (factor_dr + K*(1/r))*G - (E_reposo + E_lv1 + V)*(F/h_bar_c);
+end
+
+
+function [pt, px, py, pz] = ObtenEnergiaMomentoConUds(phi, dPhi_dx, dPhi_dy, dPhi_dz, A, m, c, h_bar, jt)
 % Incluye potencial EM... las unidades serán un dolor, el potencial que
 % venga con unidades del sistema inetrnacional!
 % El potencial incluye el factor q del electrón (sería la energía potencial
@@ -108,74 +146,62 @@ function [pt, px, py, pz] = ObtenEnergiaMomentoConUds(phi, grad_espacial_Phi, A,
     Ay = A(3);
     Az = A(4);
 
-    dPhi_dx = grad_espacial_Phi(1,:).';
-    dPhi_dy = grad_espacial_Phi(2,:).';
-    dPhi_dz = grad_espacial_Phi(3,:).';
+    %dPhi_dx = grad_espacial_Phi(1,:).';
+    %dPhi_dy = grad_espacial_Phi(2,:).';
+    %dPhi_dz = grad_espacial_Phi(3,:).';
     
     [at, ax, ay, az] = MatricesAlfa();
     gt = MatrizGamma(0);
     
-    dPhi_dt_gradiente = h_bar_c * ((ax-Ax) * dPhi_dx + (ay-Ay) * dPhi_dy + (az-Az) * dPhi_dz);
-    % No, esto no se puede negociar
-    %dPhi_dt_masa = - 1i * E_reposo * phi.';
-    dPhi_dt_masa = - 1i * E_reposo*gt * phi.';
-    % No, esto no se puede negociar
-    %dPhi_dt_V = - 1i * V*gt * phi.';
-    dPhi_dt_V = - 1i * V * phi.';
+    dPhi_dt_gradiente = - h_bar_c * ((ax-Ax) * dPhi_dx + (ay-Ay) * dPhi_dy + (az-Az) * dPhi_dz);
+    dPhi_dt_masa = 1i * E_reposo * gt * phi.';
+    dPhi_dt_V = 1i * V * phi.';
     dPhi_dt = ( dPhi_dt_gradiente + dPhi_dt_masa + dPhi_dt_V);
-    
-    dens_prob = norm(phi)^2;
     
     phi_conj = conj(phi);
        
-    pt = 1i * phi_conj * dPhi_dt / dens_prob;
+    pt = - 1i * phi_conj * dPhi_dt / jt;
     
-    px = -1i * h_bar_c * phi_conj * dPhi_dx  / dens_prob - Ax;
-    py = -1i * h_bar_c * phi_conj * dPhi_dy  / dens_prob - Ay;
-    pz = -1i * h_bar_c * phi_conj * dPhi_dz  / dens_prob - Az;    
+    px = -1i * h_bar_c * phi_conj * dPhi_dx  / jt - Ax;
+    py = -1i * h_bar_c * phi_conj * dPhi_dy  / jt - Ay;
+    pz = -1i * h_bar_c * phi_conj * dPhi_dz  / jt - Az;    
     
     % debug
     ratio1 = -1i * phi(1) / dPhi_dt(1)
     ratio2 = -1i * phi(4) / dPhi_dt(4)
+    relacion_ratios = ratio2 / ratio1
     
 end
 
-function Contrib_H = ObtenAportacionHamiltonianoDerivadasEspaciales(Phi_ori, dPhi_dx_ori, dPhi_dy_ori, dPhi_dz_ori, h_bar, c)
-    Phi = Phi_ori.';
-    dPhi_dx = dPhi_dx_ori.';
-    dPhi_dy = dPhi_dy_ori.';
-    dPhi_dz = dPhi_dz_ori.';
-    
+% Da la contribución energética por unidad de densiad de onda.
+function Contrib_H = ObtenAportacionHamiltonianoDerivadasEspaciales(Phi_ori, dPhi_dx, dPhi_dy, dPhi_dz, h_bar, c, jt)    
     [at, ax, ay, az] = MatricesAlfa();
     
     gradiente_slash = 1i * h_bar * c * (ax * dPhi_dx + ay * dPhi_dy + az * dPhi_dz);
     
-    Contrib_H = conj(Phi_ori) * gradiente_slash;
+    Contrib_H = conj(Phi_ori) * gradiente_slash / jt;
 end
 
 
 function dPhi_dir_comple = ObtenDerivadaDirNoRadialSpinorPequeno(bispinor, spinor_base, dir_comple, r)
     norma_spinor_pequeno = norm(bispinor(3:4));
     
-    sigma = PauliVectorEscalarProd(dir_comple);
+    spinor_base_norm = spinor_base / norm(spinor_base);
     
-    % El 2 es porque el spin gira el doble de rápido... pues va a ser que
-    % no, se justificó por un error en el paso de variables :(, era este:
-    % Contrib_H_Q = ObtenAportacionHamiltonianoDerivadasEspaciales(bispinor, dPhi_x, dPhi_y, dPhi_y, h_bar, c)
-    % MAL:
-    %dif_spinor_pequeno = -1i * 2 * sigma * spinor_base.' * norma_spinor_pequeno / r;
-    % ¡¡¡ Recurrir a trampantojos siempre causan retrasos y errores!!!
+    dif_sigma = PauliVectorEscalarProd(dir_comple);
     
-    dif_spinor_pequeno = -1i * sigma * spinor_base.' * norma_spinor_pequeno / r;
+    dif_spinor_pequeno = -1i * dif_sigma * spinor_base_norm.' * norma_spinor_pequeno / r;
     
     dPhi_dir_comple = [0, 0, dif_spinor_pequeno.'];
 end
 
-function bispinor_base = MontaBispinorBase(spinor_base, k1, k2, dir)
+function bispinor_base = MontaBispinorBase(spinor_base, k1, k2, dir, fase)
     sigma = PauliVectorEscalarProd(dir);
     
-    spinor_pequeno = - 1i * sigma * spinor_base.' * sqrt(k2/k1);  
-    bispinor_base = [spinor_base, spinor_pequeno.'];
+    %spinor_pequeno = - 1i * sigma * spinor_base.' * sqrt(k2/k1);  
+    spinor_pequeno = 1i * sigma * spinor_base.' * sqrt(k2/k1);  
+    
+    bispinor_base = [fase * spinor_base, conj(fase) * spinor_pequeno.'];
 end
 
 
@@ -187,11 +213,15 @@ function bispinor = ObtenBispinor(r, factor_rho, factor_s, bispinor_base)
 end
 
 function dPhi_dr = ObtenDerivadaRadialSpinors(r, factor_rho, factor_s, bispinor)    
-    dPhi_dr = -(factor_rho - factor_s / r) * bispinor;
+    dPhi_dr = (factor_s / r - factor_rho ) * bispinor;
+    % CompruebaEqDiferenciales sugiere usar el signo negativo, pues da
+    % igual, que le jodan, lo anterior está bien.
+    %%%dPhi_dr = -(factor_s / r - factor_rho ) * bispinor;
 end
 
-function Contrib_H_V = ObtenAportacionHamiltonianoPotencial(r, c_elec, perme, jt)
-    Contrib_H_V = -(jt*c_elec)/(4*pi*perme) * c_elec / r;
+% Da la contribución energética por unidad de densidad de onda.
+function Contrib_H_V = ObtenAportacionHamiltonianoPotencial(r, c_elec, perme)
+    Contrib_H_V = -(c_elec)/(4*pi*perme) * c_elec / r;
 end
 
 
