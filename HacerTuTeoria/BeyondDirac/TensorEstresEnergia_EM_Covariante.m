@@ -1,4 +1,7 @@
+% Esta está mal:
 % https://en.wikipedia.org/wiki/Covariant_formulation_of_classical_electromagnetism
+% 
+% Usar esta:
 % https://en.wikipedia.org/wiki/Electromagnetic_stress%E2%80%93energy_tensor
 
 clear;
@@ -12,81 +15,138 @@ abc = 11^2 + 13^2 + 17^2 + 3^2 + 5^2 + 7^2;
 u = (norm(E)^2 + norm(B)^2) / 2
 p = cross(E, B)
 
-tMaxwell = TensorDeMaxwell(E, B);
+tMaxwell = TensorDeMaxwell(E, B)
+
+sigma_11 = -u + E(1)^2 + B(1)^2;
+sigma_12 = E(1)*E(2) + B(1)*B(2);
 
 F = TensorEM(E, B);
 
+T = Tensor_Estres_Energia_EM(F) 
 
-T11 = CalculaTensorEstresEnergia(F, 1, 1)
-T12 = CalculaTensorEstresEnergia(F, 1, 2)
-T13 = CalculaTensorEstresEnergia(F, 1, 3)
-T14 = CalculaTensorEstresEnergia(F, 1, 4)
+% Sin Gemini no habría sido posible.
+% T11 = TensorSE_ByGeminiIA(F, 1, 1)
+% 
+% T21 = TensorSE_ByGeminiIA(F, 2, 1)
+% T31 = TensorSE_ByGeminiIA(F, 3, 1)
+% T41 = TensorSE_ByGeminiIA(F, 4, 1)
+% T12 = TensorSE_ByGeminiIA(F, 1, 2)
+% T13 = TensorSE_ByGeminiIA(F, 1, 3)
+% T14 = TensorSE_ByGeminiIA(F, 1, 4)
+% 
+% T22 = TensorSE_ByGeminiIA(F, 2, 2)
+% T23 = TensorSE_ByGeminiIA(F, 2, 3)
+% T24 = TensorSE_ByGeminiIA(F, 2, 4)
+% T32 = TensorSE_ByGeminiIA(F, 3, 2)
+% T33 = TensorSE_ByGeminiIA(F, 3, 3)
+% T34 = TensorSE_ByGeminiIA(F, 3, 4)
+% T42 = TensorSE_ByGeminiIA(F, 4, 2)
+% T43 = TensorSE_ByGeminiIA(F, 4, 3)
+% T44 = TensorSE_ByGeminiIA(F, 4, 4)
 
-T21 = CalculaTensorEstresEnergia(F, 2, 1)
-T31 = CalculaTensorEstresEnergia(F, 3, 1)
-T41 = CalculaTensorEstresEnergia(F, 4, 1)
 
-% T22 = CalculaTensorEstresEnergia(F, 2, 2)
-% T23 = CalculaTensorEstresEnergia(F, 2, 3)
-% T24 = CalculaTensorEstresEnergia(F, 2, 4)
-% T22 = CalculaTensorEstresEnergia(F, 2, 2)
-% T23 = CalculaTensorEstresEnergia(F, 2, 3)
-% T24 = CalculaTensorEstresEnergia(F, 2, 4)
+va11 = trace(F*F');
+val2 = ContraeMatrices(F, F);
+
+valSiempreQuise = -ContraeMatrizEMTrampaDelDemonio(F);
+
+% T11 = CalculaTensorEstresEnergia(F, 1, 1)
+% 
+%  T21 = CalculaTensorEstresEnergia(F, 2, 1)
+%  T31 = CalculaTensorEstresEnergia(F, 3, 1)
+%  T41 = CalculaTensorEstresEnergia(F, 4, 1)
+%  T12 = CalculaTensorEstresEnergia(F, 1, 2)
+%  T13 = CalculaTensorEstresEnergia(F, 1, 3)
+%  T14 = CalculaTensorEstresEnergia(F, 1, 4)
+ 
+ T22 = CalculaTensorEstresEnergia(F, 2, 2)
+ T23 = CalculaTensorEstresEnergia(F, 2, 3)
+ T24 = CalculaTensorEstresEnergia(F, 2, 4)
+ T32 = CalculaTensorEstresEnergia(F, 3, 2)
+ T33 = CalculaTensorEstresEnergia(F, 3, 3)
+ T34 = CalculaTensorEstresEnergia(F, 3, 4)
+ T42 = CalculaTensorEstresEnergia(F, 4, 2)
+ T43 = CalculaTensorEstresEnergia(F, 4, 3)
+ T44 = CalculaTensorEstresEnergia(F, 4, 4)
 
 
-function val = CalculaTensorEstresEnergia(F, alfa, betta)
+
+
+function val = CalculaTensorEstresEnergia(F, mu, ni)
     eta = MatrizMinkowski();
-
-    Fc = F';
-    %Fc = F;
     
-    %val_cte = ContraeMatrices(F, F);  
-    val_cte = ContraeMatricesEspecial(F, F);
+    val_cte = ContraeMatrizEMTrampaDelDemonio(F);
+    
+    test = eta * F;
+    test2 = test * eta;
     
     val = 0;
 
     iters = 0;
     
-    ni = 1;
-    while ni <= 4
-        gamma = 1;
-        cof_eta = eta(alfa, ni);
-        cof_eta = cof_eta * eta(betta, betta);
-        while gamma <= 4            
-            addVal = F(ni,gamma) * F(betta,gamma) * cof_eta;
-            if addVal ~= 0
-                iters = iters + 1;
-            end
-            val = val + addVal;
-            gamma = gamma + 1;
+    alfa = 1;
+    while alfa <= 4
+        %vect = F(:, alfa);
+        vect = F(alfa, :);
+        if alfa > 1
+            vect = -vect;
         end
-
-       ni = ni + 1;
+        
+        addVal = F(mu,alfa) * vect(ni); 
+        if addVal ~= 0
+            iters = iters + 1;
+        end
+        val = val + addVal;
+            
+       alfa = alfa + 1;
     end
     
-    val = val - (1/4) * val_cte * eta(alfa, betta);
+    val = val + (1/4) * val_cte * eta(mu, ni);
     
     iters = iters;
 end
 
-
-function val = ContraeMatricesEspecial(T1, T2)
+function val = ContraeMatrizEMTrampaDelDemonio(F)
     val = 0;
-
-    m = 1;
-    while m <= 4
-        n = 1;
-        while n <= 4
-            if (m > 1 && n > 1)
-                factor = -1;
-            else
-                factor = 1;
+    eta = MatrizMinkowski();
+    
+    beta = 1;
+    while beta <= 4
+        gamma = 1;
+        while gamma <= 4
+            alfa = 1;
+            while alfa <= 4
+                delta = 1;
+                while delta <= 4 
+                    val = val + F(beta, gamma)*eta(beta, alfa)*eta(gamma, delta)*F(alfa, delta);
+                    
+                    delta = delta + 1;
+                end
+                alfa = alfa + 1;
             end
-            val = val + factor * T1(m,n) * T2(m,n);
-            n = n + 1;
+            gamma = gamma + 1;
         end
-
-        m = m + 1;
+        beta = beta + 1;
     end
 end
+
+
+function T_munu = TensorSE_ByGeminiIA(F, mu, nu)
+    % Minkowski metric tensor (using the (+,-,-,-) convention)
+    g = diag([1, -1, -1, -1]);
+    % Inverse metric tensor (same as the metric tensor for this choice)
+    g_inv = g;
+
+    term1_matrix = F * g_inv * F';
+    term1_munu = term1_matrix(mu, nu); % MATLAB uses 1-based indexing
+
+    trace_FF = trace(F * g_inv * F' * g_inv);
+    
+    % Get the element g_mu_nu from the metric tensor
+    g_munu = g(mu, nu);
+    
+    T_munu = -(term1_munu - (1/4) * g_munu * trace_FF);    
+end
+
+
 
