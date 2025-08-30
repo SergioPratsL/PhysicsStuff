@@ -15,9 +15,14 @@ sx = MatrizPauli(1);
 sy = MatrizPauli(2);
 sz = MatrizPauli(3);
 
-x = bs * sx * bs';
-y = bs * sy * bs';
-z = bs * sz * bs';
+% x = bs * sx * bs';
+% y = bs * sy * bs';
+% z = bs * sz * bs';
+
+% 10.07.2025
+x = conj(bs) * sx * bs.';
+y = conj(bs) * sy * bs.';
+z = conj(bs) * sz * bs.';
 
 V = [x, y, z];
 

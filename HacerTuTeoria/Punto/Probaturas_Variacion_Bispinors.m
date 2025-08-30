@@ -153,10 +153,10 @@ spinor_base = [1, 0];   %Z
 % v = [0, 0, 0];
 % Resultado: d_dens_prob = 1
 
-% dir_dif_no_norm = [1,0,0];
-% dp_no_norm = [0, 0, 1];
-% v = [0, 0, 0];
-% Resultado: d_sx = 1
+dir_dif_no_norm = [1,0,0];
+dp_no_norm = [0, 0, 1];
+v = [0, 0, 0];
+%Resultado: d_sx = 1
 
 % dir_dif_no_norm = [0,0,1];
 % dp_no_norm = [1, 0, 0];
@@ -233,37 +233,37 @@ spinor_base = [1, 0];   %Z
 % v = [0, 0.4, 0];
 % Resultado: d_vx =  0.3666
 
-% dir_dif = NormalizaCustom(dir_dif_no_norm, 1);
-% dp = NormalizaCustom(dp_no_norm, 1);
-% p = fGamma(v) * v;
-% E = sqrt(1+norm(p)^2);
-% 
-% bispinor = DiracSpinorPlainWave(p, spinor_base);
-% 
-% dPhi_por_dp = ObtenDiferencialMomento(bispinor, p, dp)
+dir_dif = NormalizaCustom(dir_dif_no_norm, 1);
+dp = NormalizaCustom(dp_no_norm, 1);
+p = fGamma(v) * v;
+E = sqrt(1+norm(p)^2);
 
-% % Cuando la verificación que viene luego no iba bien, tuve que hacer todo 
-% % esto para entender qué estaba haciendo mal... lo mío me costó.
-% %bispinor2 = DiracSpinorPlainWave(p + [0,0,0.0001], spinor_base);
-% bispinor2 = DiracSpinorPlainWave(p + [0.0001,0,0], spinor_base);
-% dif_spinor_unitario = 10000 * (bispinor2 - bispinor)
-% dens1 = bispinor * bispinor';           
-% dens2 = bispinor2 * bispinor2';
-% dif_dens_norm = 10000 * (dens2 - dens1) / dens1;
-% factor1 = dPhi_por_dp(1) / dif_spinor_unitario(1);
-% factor2 = dPhi_por_dp(3) / dif_spinor_unitario(3);
+bispinor = DiracSpinorPlainWave(p, spinor_base);
+
+dPhi_por_dp = ObtenDiferencialMomento(bispinor, p, dp)
+
+% Cuando la verificación que viene luego no iba bien, tuve que hacer todo 
+% esto para entender qué estaba haciendo mal... lo mío me costó.
+%bispinor2 = DiracSpinorPlainWave(p + [0,0,0.0001], spinor_base);
+bispinor2 = DiracSpinorPlainWave(p + [0.0001,0,0], spinor_base);
+dif_spinor_unitario = 10000 * (bispinor2 - bispinor)
+dens1 = bispinor * bispinor';           
+dens2 = bispinor2 * bispinor2';
+dif_dens_norm = 10000 * (dens2 - dens1) / dens1;
+factor1 = dPhi_por_dp(1) / dif_spinor_unitario(1);
+factor2 = dPhi_por_dp(3) / dif_spinor_unitario(3);
 
 
-% A modo de verificación. Hizo falta introducir el factor dos del bra y 
-% el ket en ObtenVariacionPropiedadesIntrinsecas para salvar esto!
+%A modo de verificación. Hizo falta introducir el factor dos del bra y 
+%el ket en ObtenVariacionPropiedadesIntrinsecas para salvar esto!
 %[d_dens_prob, d_vx, d_vy, d_vz, d_sx, d_sy, d_sz] = ObtenVariacionPropiedadesIntrinsecas(bispinor, dPhi_por_dp)
-% return
+%return
 
-%gv = dir_dif(1)*gx + dir_dif(2)*gy + dir_dif(3)*gz;
+gv = dir_dif(1)*gx + dir_dif(2)*gy + dir_dif(3)*gz;
  
-%dPhi = (gt * gv * dPhi_por_dp')';
+dPhi = (gt * gv * dPhi_por_dp')';
 
-%[d_dens_prob, d_vx, d_vy, d_vz, d_sx, d_sy, d_sz] = ObtenVariacionPropiedadesIntrinsecas(bispinor, dPhi)
+[d_dens_prob, d_vx, d_vy, d_vz, d_sx, d_sy, d_sz] = ObtenVariacionPropiedadesIntrinsecas(bispinor, dPhi)
 
 
 

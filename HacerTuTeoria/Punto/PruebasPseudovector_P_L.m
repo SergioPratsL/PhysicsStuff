@@ -30,9 +30,12 @@ N = [0, 0, 0];
 J = [0, 0, 0.5];
 %v = [0, 0, 0.4];
 v = [0, 0.4, 0];
+%v = [0.4, 0.38, -0.27];
 
 M_ori = TensorMomAng(N, J)
 M = Boost_Tensor_Momento_Angular(N, J, v)
+
+[N_boost, L_boost] = ExtraeEM_deTensor(M)
 
 P_ori = Momento_4(v_0);
 
@@ -40,7 +43,12 @@ P = Momento_4(-v);
 
 W_ori = Pseudovector_P_L(M_ori, P_ori)
 W = Pseudovector_P_L(M, P)
-% %W = [0.2182         0         0    0.5455], Invariante ok
+
+% El vector P-L requiere boosts en sentido inverso al ser un vector axial.
+W_boost = Boost(W_ori, -v)
+
+%W = [0.2182         0         0    0.5455], Invariante ok
+%W = [-0.1711   -0.0382   -0.0363    0.5258]
 
 
 % Prueba 3, con momento de inercia arbitrario
@@ -51,7 +59,7 @@ W = Pseudovector_P_L(M, P)
 % 
 % M_ori = TensorMomAng(N, J)
 % M = Boost_Tensor_Momento_Angular(N, J, v)
-
+% 
 % % Adultermos el momento angular en otro SRI para comprobar que eso si hace
 % % efecto. Hay que respetar la antisimetria.
 % M_adulterado = M;
@@ -72,9 +80,9 @@ W = Pseudovector_P_L(M, P)
 % % W_adulterado = 0.3536    0.0828    7.1332   -3.6391
 % % Cuando se está fuera del SRI origen el momento adulterado sí que afecta
 % % al vector P-L.
-
-% Si hay movimiento, las componentes de N perpendiculares a la velocidad
-% dan aportaciones al vector PL (a sus componentes espaciales).
+% 
+% % Si hay movimiento, las componentes de N perpendiculares a la velocidad
+% % dan aportaciones al vector PL (a sus componentes espaciales).
 
 
 
