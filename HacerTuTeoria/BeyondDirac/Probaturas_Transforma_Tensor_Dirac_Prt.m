@@ -20,6 +20,7 @@ V_bohr = -1/(4*pi*perm_E) * q / radio_bohr;
 E_bohr = - V_bohr / radio_bohr;
 
 [gt, gx, gy, gz] = MatricesGamma();
+
 g5 = gt * gx * gy * gz;
 
 LCM = LeviCivitaMatrix(4);

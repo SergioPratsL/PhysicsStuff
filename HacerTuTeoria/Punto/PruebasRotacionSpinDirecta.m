@@ -52,7 +52,7 @@ clear;
 %spinor = [1, 0];
 % dir_origen = SpinorToVector(spinor)
 % v = [-0.4, 0, 0];
-% sp_boost = BoostSpin(spinor, v)
+% sp_boost = BoostBispinor(spinor, v)
 % dir_rotada = SpinorToVector(sp_boost')
 
 

@@ -284,9 +284,9 @@ spinor_base = [1, 0];   %Z
 %v = [0, 0, 0];
 % Resultado:  d_vy = -1
 
-% dir_dif_no_norm = [0,1,0];
-% eje_rotacion_no_norm = [1, 0, 0];
-% v = [0, 0, 0];
+dir_dif_no_norm = [0,1,0];
+eje_rotacion_no_norm = [1, 0, 0];
+v = [0, 0, 0];
 % Resultado: d_vz = 1
 
 %dir_dif_no_norm = [1,0,0];
@@ -330,24 +330,24 @@ spinor_base = [1, 0];   %Z
 % Resultado: d_vz = 0.9165    d_sy = 0.2087
 
 
-% dir_dif = NormalizaCustom(dir_dif_no_norm, 1);
-% eje_rotacion = NormalizaCustom(eje_rotacion_no_norm, 1);
-% p = fGamma(v) * v;
-% E = sqrt(1+norm(p)^2);
+ dir_dif = NormalizaCustom(dir_dif_no_norm, 1);
+ eje_rotacion = NormalizaCustom(eje_rotacion_no_norm, 1);
+ p = fGamma(v) * v;
+ E = sqrt(1+norm(p)^2);
 % 
-% bispinor = DiracSpinorPlainWave(p, spinor_base);
+ bispinor = DiracSpinorPlainWave(p, spinor_base);
 % 
-% dPhi_por_rot = ObtenDiferencialRotacion(bispinor, p, eje_rotacion)
+ dPhi_por_rot = ObtenDiferencialRotacion(bispinor, p, eje_rotacion)
 
 % chequeo de control.
 %[d_dens_prob, d_vx, d_vy, d_vz, d_sx, d_sy, d_sz] = ObtenVariacionPropiedadesIntrinsecas(bispinor, dPhi_por_rot)
 %return
 
-% gv = dir_dif(1)*gx + dir_dif(2)*gy + dir_dif(3)*gz;
-%  
-% dPhi = (gt * gv * dPhi_por_rot')';
-% 
-% [d_dens_prob, d_vx, d_vy, d_vz, d_sx, d_sy, d_sz] = ObtenVariacionPropiedadesIntrinsecas(bispinor, dPhi)
+ gv = dir_dif(1)*gx + dir_dif(2)*gy + dir_dif(3)*gz;
+  
+ dPhi = (gt * gv * dPhi_por_rot')';
+
+ [d_dens_prob, d_vx, d_vy, d_vz, d_sx, d_sy, d_sz] = ObtenVariacionPropiedadesIntrinsecas(bispinor, dPhi)
 
 
 
@@ -422,16 +422,16 @@ E = sqrt(1+norm(p)^2);
 bispinor = DiracSpinorPlainWave(p, spinor_base);
 
 %%%bispinor_trucado = [bispinor(1:2), 1i*bispinor(3:4)];
-
-[jt, jx, jy, jz]  = ObtenCorrientesBispinor(bispinor);
-
-corrientes_intrinsecas = [jt, jx, jy, jz]
-
-grad_Phi = ObtenGradienteOndaPlana(bispinor, [E, p]);
-
-[pt, px, py, pz] = ObtenEnergiaMomentoPruebas(bispinor, grad_Phi);
-
-cuatro_momento = [pt, px, py, pz]
+% 
+% [jt, jx, jy, jz]  = ObtenCorrientesBispinor(bispinor);
+% 
+% corrientes_intrinsecas = [jt, jx, jy, jz]
+% 
+% grad_Phi = ObtenGradienteOndaPlana(bispinor, [E, p]);
+% 
+% [pt, px, py, pz] = ObtenEnergiaMomentoPruebas(bispinor, grad_Phi);
+% 
+% cuatro_momento = [pt, px, py, pz]
 
 %[jt_tr, jx_tr, jy_tr, jz_tr]  = ObtenCorrientesBispinor(bispinor_trucado);
 %

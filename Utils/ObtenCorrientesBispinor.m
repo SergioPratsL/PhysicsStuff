@@ -1,9 +1,11 @@
+% https://en.wikipedia.org/wiki/Dirac_equation
+
 function [jt, jx, jy, jz] = ObtenCorrientesBispinor(Phi_ori)
     
     Phi = Phi_ori.';
 
     [alfa_t, alfa_x, alfa_y, alfa_z] = MatricesAlfa();
-    
+        
     jt = Phi' * alfa_t * Phi;
     jx = Phi' * alfa_x * Phi;
     jy = Phi' * alfa_y * Phi;
