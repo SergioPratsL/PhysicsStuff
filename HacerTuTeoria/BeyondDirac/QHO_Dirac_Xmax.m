@@ -1,5 +1,7 @@
 % QHO_Dirac_test.m
 % Simulation of 1D Dirac equation with Harmonic Oscillator potential
+% En este caso el potencial no crece hasta el infinito sino que se detiene
+% al llegar a xmax, que es donde comienza la simulacion
 clear all; clc;
 
 % --- Physical Constants (SI Units) ---
@@ -14,13 +16,7 @@ q = 1.602176 * 10^-19;
 % Más caña para que llegue antes a la energía negativa!
 k = 10000;
 
-% Probar con negativos (todavía mucho peor!)
-%k = -10000;
-
 E_mc2 = m * c^2; 
-
-% Si E=mc2 y k=0, g no levanta cabeza y f está plano, lógico.
-%k=0;
 
 % En la wiki la energía es k/2, yo uso k, por ello el su k es el doble que
 % el mio
@@ -41,11 +37,6 @@ E_min = E_mc2 - 0.5* nivel_base;
 E_max = E_mc2 + 0.5 * nivel_base; 
 energies = linspace(E_min, E_max, energy_iterations);
 
-
-% No harás nada... realmente es barrido como una mota de polvo...
-%cte_229 = hbar * q / (2*m*c);
-cte_229 = 0;
-
 % Initial conditions at x = 0
 x0 = 0;
 f0 = 1;                 % f(0) = 1
@@ -55,18 +46,20 @@ f_prime_0 = 0;          % f'(0)
 %num_iterations = 10000;
 % Más iteraciones que ha de llegar mucho más lejos!
 num_iterations = 100000;
-dx = 1e-14;             % Step size (m)
+dx = 2*1e-14;             % Step size (m)
 % Pasos más grandes
 %dx = 2*1e-14;             % Step size (m)
-tail_size = num_iterations / 10;       % Last 10% steps to measure probability
+
+x_max = (num_interations-1) * dx;
 
 % --- Initialization ---
 scan_prob_results = zeros(energy_iterations, 1);
-min_wave_prob = Inf;
+%min_wave_prob = Inf;
+min_error = Inf;
 best_E_index = -1;
 
 disp(['Starting Energy Sweep over ', num2str(energy_iterations), ' values...']);
-filename = 'QHO_test_results.txt';
+filename = 'QHO_Xmax_test_results.txt';
 fileID = fopen(filename, 'w');
 fprintf(fileID, 'Iter\t Energy(J)\t Mean_Tail_Prob\n');
 
@@ -74,57 +67,65 @@ fprintf(fileID, 'Iter\t Energy(J)\t Mean_Tail_Prob\n');
 for j = 1:energy_iterations
     E = energies(j);
     
+    k1 = E - E_mc2 - k * x_max^2;
+    k2 = E + E_mc2 - k * x_max^2;
+    w = sqrt(k1/k2);
+    
     % Initialize variables for this run
     x = zeros(num_iterations, 1);
     f = zeros(num_iterations, 1);
     g = zeros(num_iterations, 1);
+
+    x(1) = x_max;
     
-    x(1) = x0;
-    f(1) = f0;
+    if (w < 0)
+        f(1) = 1;
+        g(1) = w;
+    else
+        f(1) = 1/w;
+        g(1) = 1;
+    end
     
-    % Calculate g(0) for current E
-    g(1) = (hbar * c * f_prime_0) / (E + m * c^2 - k * x(1)^2);
-    
-    current_tail_prob_sum = 0;
-    start_tail_idx = num_iterations - tail_size;
+    % No hace falta almacenar todas las f_prime y g_prime.
+    df_dx = f(1) * k1*k2;
+    dg_dx = g(1) * k1*k2;    
+   
     
     % --- Inner Loop: Spatial Integration ---
-    for i = 1:num_iterations-1
+    for i = 1:num_iterations-1       
         xi = x(i);
-        
         E_minus = (E - m*c^2 - k*xi^2);
         E_plus = (E + m*c^2 - k*xi^2);
         
         % Derivatives
-        %dg_dx = (E_minus * f(i)) / (hbar * c);
-        %df_dx = (E_plus * g(i)) / (hbar * c);
-        
-        % T229 Derivatives
-        dg_dx = (E_minus * f(i)) / (hbar * c) - cte_229 * g(i);
-        df_dx = (E_plus * g(i)) / (hbar * c) - cte_229 * f(i);        
+        dg_dx = (E_minus * f(i)) / (hbar * c);
+        df_dx = (E_plus * g(i)) / (hbar * c); 
         
         if (i == num_iterations-1)
             asad = 1;
         end
         
-        % Update
-        x(i+1) = xi + dx;
-        f(i+1) = f(i) + dx * df_dx;
-        g(i+1) = g(i) + dx * dg_dx;
-        
-        % Accumulate Probability in Tail
-        if i >= start_tail_idx
-            current_tail_prob_sum = current_tail_prob_sum + (f(i+1)^2 + g(i+1)^2);
-        end
+        % Recordemos que vamos hacia atrás, por eso las derivadas restan
+        x(i+1) = xi - dx;
+        f(i+1) = f(i) - dx * df_dx;
+        g(i+1) = g(i) - dx * dg_dx;
     end
     
-    % Store Scan Result
-    avg_tail_prob = current_tail_prob_sum / tail_size;
-    scan_prob_results(j) = avg_tail_prob;
-    fprintf(fileID, '%d\t %.6e\t %.6e\n', j, E, avg_tail_prob);
+    % Valor normalizado
+    integral_dens_onda = (norm(f)^2 + norm(g)^2) / num_iterations;
     
-    if current_tail_prob_sum < min_wave_prob
-        min_wave_prob = current_tail_prob_sum;
+    factor_ori = sqrt((E-E_mc2)/(E+E_mc2));
+    
+    % Estas fórmulas me dan mucho miedo.
+    error_1 = ((E-E_mc2)*f(num_iterations))^2 + (dg_dx)^2;
+    error_2 = ((E+E_mc2)*g(num_iterations))^2 + (df_dx)^2;
+    
+    error = min(error_1, error_2);
+    
+    fprintf(fileID, '%d\t %.6e\t %.6e\n', j, E, error);
+    
+    if error < min_error
+        min_error = error;
         best_E_index = j;
     end
 end

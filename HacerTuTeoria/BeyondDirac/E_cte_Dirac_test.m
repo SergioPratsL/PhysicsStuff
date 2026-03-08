@@ -1,5 +1,6 @@
-% QHO_Dirac_test.m
-% Simulation of 1D Dirac equation with Harmonic Oscillator potential
+% Como el QHO_Dirac_test pero con E cte bueno E depende del signo de X, es
+% como su en el 0 hubiera un plano con densidad superficial de corriente.
+
 clear all; clc;
 
 % --- Physical Constants (SI Units) ---
@@ -9,13 +10,12 @@ hbar = 1.0545718e-34;   % Reduced Planck constant (J.s)
 q = 1.602176 * 10^-19;
 
 % --- Simulation Parameters ---
-% Adjust these values as needed
-% k = 1000;               % QHO Spring constant (N/m) - Example value
+% k incluya q de algumna manera...
+%k = 1000;               % QHO Spring constant (N/m) - Example value
 % Más caña para que llegue antes a la energía negativa!
-k = 10000;
-
-% Probar con negativos (todavía mucho peor!)
-%k = -10000;
+%k = 10000;
+% menos caña
+k = 0.001;
 
 E_mc2 = m * c^2; 
 
@@ -25,7 +25,9 @@ E_mc2 = m * c^2;
 % En la wiki la energía es k/2, yo uso k, por ello el su k es el doble que
 % el mio
 w_wiki = sqrt(2*k/m);
-nivel_base = hbar * w_wiki / 2;
+nivel_base_old = hbar * w_wiki / 2;
+
+nivel_base = sqrt(E_mc2^2 + 2*k*c*hbar) - E_mc2;
 
 % --- Energy Scan Settings ---
 energy_iterations = 100;
@@ -36,15 +38,11 @@ energy_iterations = 100;
 % Adjust these factors to widen/narrow the search
 %E_min = E_mc2 + 0.1 * nivel_base;  
 
-E_min = E_mc2 - 0.5* nivel_base;  
-%E_max = E_mc2 + 1 * nivel_base; 
-E_max = E_mc2 + 0.5 * nivel_base; 
+%E_min = E_mc2;  
+E_min = E_mc2 + 0.45 * nivel_base;  
+%E_max = E_mc2 + 2 * nivel_base; 
+E_max = E_mc2 + 0.6 * nivel_base; 
 energies = linspace(E_min, E_max, energy_iterations);
-
-
-% No harás nada... realmente es barrido como una mota de polvo...
-%cte_229 = hbar * q / (2*m*c);
-cte_229 = 0;
 
 % Initial conditions at x = 0
 x0 = 0;
@@ -52,9 +50,7 @@ f0 = 1;                 % f(0) = 1
 f_prime_0 = 0;          % f'(0)
 
 % Numerical settings
-%num_iterations = 10000;
-% Más iteraciones que ha de llegar mucho más lejos!
-num_iterations = 100000;
+num_iterations = 10000;
 dx = 1e-14;             % Step size (m)
 % Pasos más grandes
 %dx = 2*1e-14;             % Step size (m)
@@ -66,7 +62,7 @@ min_wave_prob = Inf;
 best_E_index = -1;
 
 disp(['Starting Energy Sweep over ', num2str(energy_iterations), ' values...']);
-filename = 'QHO_test_results.txt';
+filename = 'E_cte_test_results.txt';
 fileID = fopen(filename, 'w');
 fprintf(fileID, 'Iter\t Energy(J)\t Mean_Tail_Prob\n');
 
@@ -83,7 +79,7 @@ for j = 1:energy_iterations
     f(1) = f0;
     
     % Calculate g(0) for current E
-    g(1) = (hbar * c * f_prime_0) / (E + m * c^2 - k * x(1)^2);
+    g(1) = (hbar * c * f_prime_0) / (E + m * c^2);
     
     current_tail_prob_sum = 0;
     start_tail_idx = num_iterations - tail_size;
@@ -92,19 +88,15 @@ for j = 1:energy_iterations
     for i = 1:num_iterations-1
         xi = x(i);
         
-        E_minus = (E - m*c^2 - k*xi^2);
-        E_plus = (E + m*c^2 - k*xi^2);
+        E_minus = (E - m*c^2 - k*xi);
+        E_plus = (E + m*c^2 - k*xi);
         
         % Derivatives
-        %dg_dx = (E_minus * f(i)) / (hbar * c);
-        %df_dx = (E_plus * g(i)) / (hbar * c);
+        dg_dx = (E_minus * f(i)) / (hbar * c);
+        df_dx = (E_plus * g(i)) / (hbar * c);
         
-        % T229 Derivatives
-        dg_dx = (E_minus * f(i)) / (hbar * c) - cte_229 * g(i);
-        df_dx = (E_plus * g(i)) / (hbar * c) - cte_229 * f(i);        
-        
-        if (i == num_iterations-1)
-            asad = 1;
+        if (i == 100)
+            sdasd = 1;
         end
         
         % Update
@@ -160,3 +152,4 @@ subplot(2,1,2);
 plot(x, g, 'r', 'LineWidth', 1.5);
 xlabel('x (m)'); ylabel('g(x)');
 grid on;
+
