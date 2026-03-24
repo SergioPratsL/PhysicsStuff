@@ -15,9 +15,10 @@ end
 
 norm_p = norm(p);
 
-P_Dot_PauliVector_norm = (PauliVectorEscalarProd(p / norm_p))';
+%P_Dot_PauliVector_norm = (PauliVectorEscalarProd(p / norm_p))';
+P_Dot_PauliVector_norm = PauliVectorEscalarProd(p / norm_p);
 
-Sp2 = P_Dot_PauliVector_norm * Sp1.';
+Sp2 = inv(P_Dot_PauliVector_norm) * Sp1.';
 
 E = sqrt(norm_p^2 + 1);
 
