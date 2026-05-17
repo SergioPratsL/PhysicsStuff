@@ -1,3 +1,4 @@
+clear;
 % Este Matlab pretende explicar por qué el nivel 1 del átomo de hidrógeno
 % tiene coriente no nula en dirección de la colatitud mientras que el
 % momento de inercia es nulo basándose en que el spin es como una espira
@@ -62,10 +63,10 @@ factor_s = sqrt(k_rara^2 - cte_fina^2);
 % Spinor base NO SE PUEDE CAMBIAR
 spinor_base = [1, 0];
 
-% r = 1 * radio_bohr;
-% dir = [1,0,0];
-% dir_e1 = [0,1,0];   
-% dir_e2 = [0,0,1];   
+%  r = 1 * radio_bohr;
+%  dir = [1,0,0];
+%  dir_e1 = [0,1,0];   
+%  dir_e2 = [0,0,1];   
 
 % Se cumple
 % r = 1.8 * radio_bohr;
@@ -87,45 +88,34 @@ spinor_base = [1, 0];
 % difPx = -9.3326e-25 + 1.4932e-24i     px_asociado_a_jx = -9.3325e-25
 % difPy = -1.4932e-24 - 9.3326e-25i 
 % difPz = 0.0000e+00 + 9.3326e-25i
-% r = 0.5 * radio_bohr;
-% dir = [1.6,-1,1];
-% dir = dir / norm(dir);
-% dir_e1 = [0,1,1] / norm([0,1,1]);
-% dir_e2 = cross(dir, dir_e1);
+%  r = 0.5 * radio_bohr;
+%  dir = [1.6,-1,1];
+%  dir = dir / norm(dir);
+%  dir_e1 = [0,1,1] / norm([0,1,1]);
+%  dir_e2 = cross(dir, dir_e1);
 
 
 % Fuera del ecuador 2. Se cumple
-% difPx = 6.3020e-25
-% difPy = difPz = 0
-% r = 2.5 * radio_bohr;
-% dir = [0,1,3];
-% dir = dir / norm(dir);
-% dir_e1 = [1,0,0];
-% dir_e2 = cross(dir, dir_e1);
+%difPx = 6.3020e-25
+%difPy = difPz = 0
+r = 2.5 * radio_bohr;
+dir = [0,1,3];
+dir = dir / norm(dir);
+dir_e1 = [1,0,0];
+dir_e2 = cross(dir, dir_e1);
 
 % Cerca del polo sur (en las montañas del a locura). Se cumple. VICTORIA!
 % difPy = -1.9830e-25
 % difPy = difPz = 0
-
-r = radio_bohr;
-dir = [1,0,-10];
-dir = dir / norm(dir);
-dir_e1 = [0, 1, 0];
-dir_e2 = cross(dir, dir_e1);
+% r = radio_bohr;
+% dir = [1,0,-10];
+% dir = dir / norm(dir);
+% dir_e1 = [0, 1, 0];
+% dir_e2 = cross(dir, dir_e1);
 
 bispinor_base = MontaBispinorBase(factor_gamma_wiki, cte_fina, dir, Z);
 
 bispinor = ObtenBispinor(r, factor_gamma_wiki, factor_C, bispinor_base);
-
-% Verificar que el momento es cero o imaginario (o residual)
-px = i * h_bar * dPhi_dx' * bispinor.'
-py = i * h_bar * dPhi_dy' * bispinor.'
-pz = i * h_bar * dPhi_dz' * bispinor.'
-
-[jt, jx, jy, jz]  = ObtenCorrientesBispinor(bispinor);
-jx_norm = jx / jt
-jy_norm = jy / jt
-jz_norm = jz / jt
 
 dPhi_dr = ObtenDerivadaRadialSpinors(r, factor_gamma_wiki, factor_C, bispinor);
 dPhi_e1 = ObtenDerivadaDirNoRadialSpinorPequeno(bispinor, dir_e1, r, Z, cte_fina, factor_gamma_wiki);
@@ -135,50 +125,49 @@ dPhi_dx = (dPhi_dr*dir(1) + dPhi_e1*dir_e1(1) + dPhi_e2*dir_e2(1)).';
 dPhi_dy = (dPhi_dr*dir(2) + dPhi_e1*dir_e1(2) + dPhi_e2*dir_e2(2)).';
 dPhi_dz = (dPhi_dr*dir(3) + dPhi_e1*dir_e1(3) + dPhi_e2*dir_e2(3)).';
 
+% Verificar que el momento es cero o imaginario (o residual)
+px = i * h_bar * dPhi_dx' * bispinor.'
+py = i * h_bar * dPhi_dy' * bispinor.'
+pz = i * h_bar * dPhi_dz' * bispinor.'
+
+[jt, jx, jy, jz]  = ObtenCorrientesBispinor(bispinor);
+jx_norm = jx / jt;
+jy_norm = jy / jt;
+jz_norm = jz / jt;
+j_norm = [jx, jy, jz]
+
 % En función de la dirección quiero calcular la componente de la colatitud,
 % que será una mezcla de (T01-T10) y (T02-T20), tengo que sacar algunos
 % Suvr y la derivada de sus valores...
 
-difPx = ObtenDiferenciaFlujoMomento(bispinor.', dPhi_dx, dPhi_dy, dPhi_dz, 1, h_bar) / jt
-difPy = ObtenDiferenciaFlujoMomento(bispinor.', dPhi_dx, dPhi_dy, dPhi_dz, 2, h_bar) / jt
-difPz = ObtenDiferenciaFlujoMomento(bispinor.', dPhi_dx, dPhi_dy, dPhi_dz, 3, h_bar) / jt
+difPx = ObtenDiferenciaFlujoMomento(bispinor.', dPhi_dx, dPhi_dy, dPhi_dz, 1, h_bar) / jt;
+difPy = ObtenDiferenciaFlujoMomento(bispinor.', dPhi_dx, dPhi_dy, dPhi_dz, 2, h_bar) / jt;
+difPz = ObtenDiferenciaFlujoMomento(bispinor.', dPhi_dx, dPhi_dy, dPhi_dz, 3, h_bar) / jt;
+
+dif_P = real([difPx, difPy, difPz])
 
 
 % No hace falta ningún factor gamma(v) ya que jx_norm ya lo contiene al ser
 % el producto de E*(vx/c)... o eso creo...
 % La idea es que estos tres cudren en la parte real con difPx, difPy, difPz
-px_asociado_a_jx = jx_norm * c * m_elec
-py_asociado_a_jy = jy_norm * c * m_elec
-pz_asociado_a_jz = jz_norm * c * m_elec
+px_asociado_a_jx = jx_norm * c * m_elec;
+py_asociado_a_jy = jy_norm * c * m_elec;
+pz_asociado_a_jz = jz_norm * c * m_elec;
 
+p_asociado_a_j = [px_asociado_a_jx, py_asociado_a_jy, pz_asociado_a_jz] 
 
-% Contrib_H_Q = ObtenAportacionHamiltonianoDerivadasEspaciales(bispinor, dPhi_dx, dPhi_dy, dPhi_dz, h_bar, c) / jt
-% 
-% E_V = -c_elec/(4*pi*perme) * c_elec / r;
-% A = [E_V, 0, 0,0 ];
-% 
-% Contrib_H_V = ObtenAportacionHamiltonianoPotencial(E_V, jt) / jt
-% 
-% ratio_Q_V = Contrib_H_Q / Contrib_H_V 
-% 
-% [pt, px, py, pz] = ObtenEnergiaMomentoConUds(bispinor, dPhi_dx, dPhi_dy, dPhi_dz, A, m_elec, c, h_bar);
-% 
-% E_Mom = [pt, px, py, pz];
-% 
-% dif_energ = pt - E_reposo
-% dif_teorica = E_elec_lv1 - E_reposo
-% 
-% Sigma_z = MatrizSpin_4_4(3);
-% vector_z = Sigma_z * bispinor.';
+% Revisión que H*Phi = E*Phi
+E_V = -c_elec/(4*pi*perme) * c_elec / r;
+[at, ax, ay, az] = MatricesAlfa();
+[gt, gx, gy, gz] = MatricesGamma();
+Id = eye(4);
 
-% Esto lo estoy haciendo de una forma bastante bárbara, lo sé.
-% ratio_spin_z_1 = vector_z(1) / bispinor(1);
-% ratio_spin_z_3 = vector_z(3) / bispinor(3);
-% ratio_spin_z_4 = vector_z(4) / bispinor(4);
+H_Phi = 1i*h_bar*c*(ax*dPhi_dx + ay*dPhi_dy + az*dPhi_dz) + (E_V*Id + m_elec*c^2*gt)*bispinor.';
 
-% En la dirección Z los ratios son 1 por tanto bien, en la dirección X
-% bispinor(3) es 0 porque es bispinor(4) el que no es cero --> juguete
-% roto.
+% Las ratios dan el mismo valor en todas las ocasiones, que es básicamente
+% mc^2, por tanto esta bien,
+ratios = [H_Phi(1)/bispinor(1),0,H_Phi(3)/bispinor(3),H_Phi(4)/bispinor(4)];
+%~Revision
 
 
 function dp = ObtenDiferenciaFlujoMomento(Phi, dPhi_dx, dPhi_dy, dPhi_dz, indice, h_bar)
@@ -286,6 +275,3 @@ end
 function Contrib_H_V = ObtenAportacionHamiltonianoPotencial(E_V, jt)
     Contrib_H_V = E_V * jt;
 end
-
-
-

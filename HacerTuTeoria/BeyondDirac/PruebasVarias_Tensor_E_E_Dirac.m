@@ -61,5 +61,3 @@ jx_mixta = (phi' + phi2') * gt * gx * (phi + phi2) / dens_prob_mixta;
 %c = phi' * gt * gx * phi / dens_prob_mixta
 %d = phi2' * gt * gx * phi2 / dens_prob_mixta
 
-
-coeficiente_V = 
