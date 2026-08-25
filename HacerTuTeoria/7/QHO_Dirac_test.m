@@ -15,12 +15,14 @@ hc = h_bar * c;
 % --- Simulation Parameters ---
 
 %k= -1;  % NO USAR NEGATIVOS
-k = 1;          
+%k = 1;          
 %k=2;
 %k=3;
 %k=4;             
 %k=8;   % Comienza a ir mal          
-%k=12;   % Revienta
+%k = 10;
+k=12;  % Revienta y con relleno también
+%k=16;  % Con relleno = 4 acaba reventando igualmente.
 
 % En la wiki la energía es k/2 y así lo haré aquí.
 %w_wiki = sqrt(k/m_e);
@@ -28,8 +30,8 @@ w_wiki = sqrt(abs(k)/m_e);
 nivel_base = h_bar * w_wiki / 2;
 
 E = nivel_base + mc2;  
-%E = 2 *nivel_base;  
-%E = 10 * nivel_base;
+%E = 0.5 * nivel_base + mc2;  
+%E = 0.99 * nivel_base + mc2;  
 
 Sigma_Gaussiana = m_e*w_wiki/(2*h_bar)
 
@@ -41,7 +43,13 @@ Sz = MatrizSpin_4_4(3);
 % Con estos valores sólo puedo calcular n's pares, pero ya está bien.
 x0 = 0;
 % Solucion que tiene phi_A no nulo, orientada en Z
-f0 = [1, 0, 0, 0];
+%f0 = [1, 0, 0, 0];
+
+% Solucion de spin en X!!!
+%f0 = [1, 1, 0, 0] / sqrt(2);
+
+% Ángulo de 45%
+f0 = [cos(pi/8), sin(pi/8), 0, 0];
 
 % Numerical settings
 %num_iterations = 10000;
@@ -67,42 +75,64 @@ x = (0:num_iterations-1) * dx;
 
 disp(['Evaluando la energia ', num2str(E), ' para soluciones pares']);
 
+%factor_relleno = 4;
+factor_relleno = 1;
+num_iterations = num_iterations * factor_relleno;
+dx = dx / factor_relleno;
+n_relleno = 1;
+j = 2;
+
+dxSquare = dx^2;
+f_old = f0;
+
 for i = 2:num_iterations-1
 
     %x(i) = x(i-1) + dx;
-    pot = 0.5 * k * x(i).^2;
+    pot = 0.5 * k *dxSquare*(i-1)^2;
     
-    f_now = f(i-1, :);
+    %f_now = f(i-1, :);
     
-    f_prim(1) = inv_hc * (E + mc2 - pot)*f_now(4);
-    f_prim(2) = inv_hc * (E + mc2 - pot)*f_now(3);
-    f_prim(3) = inv_hc * (E - mc2 - pot)*f_now(2);
-    f_prim(4) = inv_hc * (E - mc2 - pot)*f_now(1);
+    f_prim(1) = inv_hc * (E + mc2 - pot)*f_old(4);
+    f_prim(2) = inv_hc * (E + mc2 - pot)*f_old(3);
+    f_prim(3) = inv_hc * (E - mc2 - pot)*f_old(2);
+    f_prim(4) = inv_hc * (E - mc2 - pot)*f_old(1);
     
-    f(i,1:4) = f_now + f_prim*dx; 
+    % En este punto ya no es viejo, pero prefieron no usar otra variable
+    f_old = f_old + f_prim*dx;
+    
+    if n_relleno == factor_relleno
+        n_relleno = 1;
+        f(j,1:4) = f_old; 
+        j = j + 1;
+    else
+        n_relleno = n_relleno + 1;
+    end
 end
 
+j = j - 1;  % Quitar el último incremento que no queremos.
 
 rho = sum(abs(f).^2, 2);
     
-disp(['Distancia al centro: ', num2str(x(i))]);
+disp(['Distancia al centro: ', num2str(x(j))]);
 
-valor_exponente_gaussiana_final = - m_e*w_wiki*x(i)^2 / (2*h_bar);
+valor_exponente_gaussiana_final = - m_e*w_wiki*x(j)^2 / (2*h_bar);
 
 % 1. Compute Sx * f' (Apply the operator to all spinors)
 % 2. Multiply by f (dot product for each row)
 % 3. Normalize by rho
-%SpinZ = sum((f * Sz.') .* conj(f), 2) ./ rho;
-%SpinY = sum((f * Sy.') .* conj(f), 2) ./ rho;
+SpinZ = sum((f * Sz.') .* conj(f), 2) ./ rho;
+SpinY = sum((f * Sy.') .* conj(f), 2) ./ rho;
+SpinX = sum((f * Sz.') .* conj(f), 2) ./ rho;
 
 %Jx = sum((f * ax.') .* conj(f), 2) ./ rho;
 %Jy = sum((f * ay.') .* conj(f), 2) ./ rho;
+%Jz = sum((f * ay.') .* conj(f), 2) ./ rho;
 
-rho_large = sum(abs(f(:, 1:2)).^2, 2);
-rho_small = sum(abs(f(:, 3:4)).^2, 2);
+%rho_large = sum(abs(f(:, 1:2)).^2, 2);
+%rho_small = sum(abs(f(:, 3:4)).^2, 2);
 
 
-iterations = 1:num_iterations;
+iterations = 1:(num_iterations/factor_relleno);
 
 figure;
 
@@ -115,15 +145,25 @@ title('Bispinor Evolution');
 
 % Middle Plot: SpinZ
 subplot(3,1,2);
-plot(iterations, rho_large, 'r', 'LineWidth', 1.5);
+%plot(iterations, rho_large, 'r', 'LineWidth', 1.5);
+%ylabel('\langle rho_large \rangle');
+plot(iterations, SpinZ, 'r', 'LineWidth', 1.5);
 ylabel('\langle S_z \rangle');
+%plot(iterations, Jx, 'r', 'LineWidth', 1.5);
+%ylabel('\langle Jx \rangle');
 xlabel('Iteration Index');
 grid on;
 
 % Bottom Plot: SpinY
 subplot(3,1,3);
-plot(iterations, rho_small, 'r', 'LineWidth', 1.5);
-ylabel('\langle S_y \rangle');
+%plot(iterations, rho_small, 'r', 'LineWidth', 1.5);
+%ylabel('\langle rho_small \rangle');
+%plot(iterations, SpinY, 'r', 'LineWidth', 1.5);
+%ylabel('\langle S_y \rangle');
+plot(iterations, SpinX, 'r', 'LineWidth', 1.5);
+ylabel('\langle S_x \rangle');
+%plot(iterations, Jy, 'r', 'LineWidth', 1.5);
+%ylabel('\langle Jy \rangle');
 xlabel('Iteration Index');
 grid on;
 
