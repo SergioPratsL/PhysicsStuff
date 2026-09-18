@@ -22,10 +22,10 @@ v = 0.4;
 % Prueba de control:
 %v_u  = [0, 0, 0];
 % Prueba de interés:
-v_u  = [0, 0.5, 0];
+%v_u  = [0, 0.5, 0];
 
 % Prueba máss dura (tambien va bien):
-%v_u  = [0, 0, 0.3];
+v_u  = [0, -0.2, 0.4];
 
 gamma = fGamma(v);
 
@@ -70,19 +70,25 @@ while iter < num_iters
     v_au_new = Vel_Addition_Law(v_au, dv);
     
     % Probaturas chungas: ¡RESULTA QUE DAN LA VICTORIA!
-    mat_rot = MatrizRotacion([0,0,-1], -angulo_chungo);
-    
+    mat_rot = MatrizRotacion([0,0,-1], angulo_chungo);
     
     %[dir_rot, angulo] = Angulo_Wigner(v_au_new, dv);
-    % El angulo tiene que ser negativo
-    %mat_rot = MatrizRotacion(dir_rot, -angulo);
+    % El angulo tiene que ser negativo (o la matriz transpuesta)
+    %mat_rot = MatrizRotacion(dir_rot, angulo);
     
-    %precesion_acum = precesion_acum + angulo;
-    precesion_acum = precesion_acum + angulo_chungo;
+    % 18.09. Veamos si esto se puede hacer con la matriz que va mejor
+    % No usamos más el angulo chungo, podemos usar -v_ca
+    v_ca = v * [-sin(fase), cos(fase), 0];
+    RW = RotacionWigner(-v_ca, dv);
+    RW_3 = RW(2:4, 2:4);
     
-    v_au_new = v_au_new * mat_rot;
+    v_au_new = v_au_new * mat_rot';
+    %v_au_new = v_au_new * RW_3';
     
     v_au = v_au_new;
+    
+    %precesion_acum = precesion_acum + angulo;
+    precesion_acum = precesion_acum + angulo_chungo;    
     
     fase = fase + dif_fase;
     iter = iter + 1; 
