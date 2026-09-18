@@ -11,12 +11,12 @@ num_iters = 10000;
 
 v = 0.4;
 % Prueba de control:
-v_u  = [0, 0, 0];
+%v_u  = [0, 0, 0];
 % Prueba de interés:
 %v_u  = [0, 0.5, 0];
 
-% Prueba máss dura (tambien va bien):
-%v_u  = [0, 0, 0.3];
+% Prueba máss dura (tambien va bien 05.09.2026):
+v_u  = [0.15, 0, 0.5];
 
 gamma = fGamma(v);
 
@@ -81,30 +81,33 @@ angulo_chungo = precesion_total_centro / num_iters;
 
 
 eje_chungo = [0, 0, 1];
-mat_rot_2 = MatrizRotacion(eje_chungo, angulo_chungo); 
+mat_rot_1 = MatrizRotacion(eje_chungo, angulo_chungo); 
+% Invirtiendo angulo_chungo y angulo_W_T no va...
+%mat_rot_1 = MatrizRotacion(eje_chungo, -angulo_chungo); 
+
 while iter < num_iters
     
-    if iter == 5000
+    if iter == 2500
         abd = 2131;
     end
     
     a = -a_abs * [cos(fase), sin(fase), 0];
     dv = a * dt_prim;
-    
-    [dir_rot, angulo_W_T] = Angulo_Wigner(-v_ua, dv);
-    mat_rot_1 = MatrizRotacion(dir_rot, angulo_W_T);
         
     % Ahora hacer un boost a la velocidad con la que `A` ve a `U` pero
     % aplicando la rotación
     x_mini_boost = Boost([1, 0, 0, 0], -dv); 
-    %v_au_rot = -v_ua * mat_rot_1;
-    v_au_rot = -v_ua * mat_rot_2;
+    v_au_rot = -v_ua * mat_rot_1;
     
     x_vel = Boost(x_mini_boost, v_au_rot);    
     v_ua_new = x_vel(2:4) / x_vel(1);        
     
-    %v_ua_new = v_ua_new * mat_rot_2;
-    v_ua_new = v_ua_new * mat_rot_1;
+    [dir_rot, angulo_W_T] = Angulo_Wigner(-v_ua, dv);
+    mat_rot_2 = MatrizRotacion(dir_rot, angulo_W_T);
+    % Invirtiendo angulo_chungo y angulo_W_T no va...
+    %mat_rot_2 = MatrizRotacion(dir_rot, -angulo_W_T);
+    
+    v_ua_new = v_ua_new * mat_rot_2;
     
     precesion_acum = precesion_acum + (angulo_W_T - angulo_chungo);
     

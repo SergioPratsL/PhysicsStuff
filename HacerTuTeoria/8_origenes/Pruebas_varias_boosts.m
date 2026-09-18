@@ -100,19 +100,25 @@ check20 = B - inv(B_ACdir)
 R = inv(B) * B_CAdb;
 % R es mat_rot, pero con velocidades altas empieza a fallar... pues lo que
 % falla es el Angulo_Wigner, R es la verdadera rotación!
-check21 = R - mat_rot
+check21 = R - mat_rot;
 
 
-B_prim = sqrtm(B_CAdb.' * B_CAdb)
+B_prim = sqrtm(B_CAdb.' * B_CAdb);
 R_prim = B_CAdb * inv(B_prim) ;
 
 % Todo Cuadra!
-check_final = B * R - R_prim * B_prim
-check_final2 = R - R_prim
-check_final3 = B_prim - inv(R) * B * R
+check_final = B * R - R_prim * B_prim;
+check_final2 = R - R_prim;
+check_final3 = B_prim - inv(R) * B * R;
 
-check_B_vs_B_dir1 = B - inv(B_ACdir)
-check_B_vs_B_dir2 = B_prim - B_CAdir
+check_B_vs_B_dir1 = B - inv(B_ACdir);
+check_B_vs_B_dir2 = B_prim - B_CAdir;
 
 % Todo ha quedado aclarado en el teorema de la descomposicion del doble
 % boost
+
+
+
+
+
+

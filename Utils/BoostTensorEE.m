@@ -15,4 +15,7 @@ function T_boost = BoostTensorEE(T, u)
     % A veces la fuerza bruta es el camino mas rapido hacia la "recta
     % opinion"
     T_boost = Lambda * T * Lambda;
+    
+    % Prueba 13.09, para tensor EM... da igual, si Lambda es un tensor par!
+    %T_boost = Lambda * T * Lambda';
 end
