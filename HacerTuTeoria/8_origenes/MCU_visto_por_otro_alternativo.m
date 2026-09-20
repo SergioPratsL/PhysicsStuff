@@ -13,10 +13,10 @@ v = 0.4;
 % Prueba de control:
 %v_u  = [0, 0, 0];
 % Prueba de interés:
-%v_u  = [0, 0.5, 0];
+v_u  = [0, 0.5, 0];
 
 % Prueba máss dura (tambien va bien 05.09.2026):
-v_u  = [0.15, 0, 0.5];
+%v_u  = [0.25, -0.3, 0.5];
 
 gamma = fGamma(v);
 
@@ -37,7 +37,8 @@ v_ca_ini = v * [-sin(fase_ini), cos(fase_ini), 0];
 
 % Tiene que estar alineada con `u` para que la transformación de
 % velocidades inicial no lo joda todo!
-v_ua_ini = Vel_Addition_Law(v_ca_ini, -v_u)
+% 20.09. Quitar fallo garrafal -v_u
+v_ua_ini = Vel_Addition_Law(v_ca_ini, v_u)
 v_ua = v_ua_ini;
 
 iter = 0;
@@ -45,6 +46,7 @@ precesion_acum = 0;
 
 % Obtenido de la prueba de control, para debug (obviamnete si v cambia,
 % este valor ha de cambiar.
+% Para obtener este valor todavia hace falta la función Angulo_Wigner.m
 precesion_total_centro = 0.572332;
 angulo_chungo = precesion_total_centro / num_iters;
 
@@ -80,10 +82,8 @@ angulo_chungo = precesion_total_centro / num_iters;
 % end
 
 
-eje_chungo = [0, 0, 1];
-mat_rot_1 = MatrizRotacion(eje_chungo, angulo_chungo); 
-% Invirtiendo angulo_chungo y angulo_W_T no va...
-%mat_rot_1 = MatrizRotacion(eje_chungo, -angulo_chungo); 
+%eje_chungo = [0, 0, 1];
+%mat_rot_1 = MatrizRotacion(eje_chungo, angulo_chungo); 
 
 while iter < num_iters
     
@@ -94,20 +94,27 @@ while iter < num_iters
     a = -a_abs * [cos(fase), sin(fase), 0];
     dv = a * dt_prim;
         
+    % 18.09. Usar la nueva función que no va sólo bien precesiones
+    v_ca = v * [-sin(fase), cos(fase), 0];
+    RW_1_4 = RotacionWigner(-v_ca, dv);
+    RW_1_3 = RW_1_4(2:4, 2:4);    
+    RW_2_4 = RotacionWigner(v_ua, dv);
+    RW_2_3 = RW_2_4(2:4, 2:4);    
+    
     % Ahora hacer un boost a la velocidad con la que `A` ve a `U` pero
     % aplicando la rotación
     x_mini_boost = Boost([1, 0, 0, 0], -dv); 
-    v_au_rot = -v_ua * mat_rot_1;
+    %v_au_rot = -v_ua * mat_rot_1;
+    v_au_rot = -v_ua * RW_1_3';
     
     x_vel = Boost(x_mini_boost, v_au_rot);    
     v_ua_new = x_vel(2:4) / x_vel(1);        
     
     [dir_rot, angulo_W_T] = Angulo_Wigner(-v_ua, dv);
-    mat_rot_2 = MatrizRotacion(dir_rot, angulo_W_T);
-    % Invirtiendo angulo_chungo y angulo_W_T no va...
-    %mat_rot_2 = MatrizRotacion(dir_rot, -angulo_W_T);
+    %mat_rot_2 = MatrizRotacion(dir_rot, angulo_W_T);
     
-    v_ua_new = v_ua_new * mat_rot_2;
+    %v_ua_new = v_ua_new * mat_rot_2;
+    v_ua_new = v_ua_new * RW_2_3';
     
     precesion_acum = precesion_acum + (angulo_W_T - angulo_chungo);
     
@@ -117,6 +124,6 @@ while iter < num_iters
     iter = iter + 1; 
 end
 
-fase_final = fase - 2 * pi
-precesion_total = precesion_acum
+fase_final = fase - 2 * pi;
+precesion_total = precesion_acum;
 v_ua_final  = v_ua

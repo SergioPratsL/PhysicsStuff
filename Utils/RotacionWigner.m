@@ -4,6 +4,11 @@ function RW = RotacionWigner( v_ab, v_ac );
 % Se supone que se parte de A, que conoce v_ab y v_ac, luego aquí
 % calculamos v_bc
 
+if (norm(v_ab) == 0 || norm(v_ac) == 0)
+    RW = eye(4);
+    return
+end
+
 v_bc = Vel_Addition_Law(v_ac, v_ab);
 
 MB_bc = Tensor_boosts(v_bc);
