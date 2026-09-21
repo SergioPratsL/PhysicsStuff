@@ -90,7 +90,7 @@ while iter < num_iters
     
     % PERO PARECE QUE LAS PRECESIONES DE WIGNER ENTRE LOS TRES SISTEMAS NO
     % DIERON LUGAR A NADA BUENO, ESTA VIA SE CANCELA
-    if iter == iter_control        
+    if iter == iter_control   
        p_new = fGamma(v_ba_new) * v_ba_new;
        p_old = fGamma(v_ba) * v_ba;
        dp = p_new - p_old

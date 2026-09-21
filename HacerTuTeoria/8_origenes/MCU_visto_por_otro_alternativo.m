@@ -3,6 +3,9 @@
 % aceleración y se la reporta al "otro" sino que la calcula el "otro"
 % directamente, con lo que las rotaciones a realizar serán diferentes.
 
+% 20.09. Si bien los valores finales volvían al origen los valores
+% intermedios hay calculado un v_ca atroz, V2 ha derrotado a V1!
+
 clear;
 
 R = 1;
@@ -13,9 +16,10 @@ v = 0.4;
 % Prueba de control:
 %v_u  = [0, 0, 0];
 % Prueba de interés:
-v_u  = [0, 0.5, 0];
+%v_u  = [0, 0.5, 0];
 
 % Prueba máss dura (tambien va bien 05.09.2026):
+v_u  = [0.15, -0.1, 0.5];
 %v_u  = [0.25, -0.3, 0.5];
 
 gamma = fGamma(v);
@@ -88,7 +92,9 @@ angulo_chungo = precesion_total_centro / num_iters;
 while iter < num_iters
     
     if iter == 2500
-        abd = 2131;
+        xxx = norm(v_ua);
+        v_ca_calc = Vel_Addition_Law(v_ua, -v_u)
+        norm_v_ca_calc = norm(v_ca_calc)
     end
     
     a = -a_abs * [cos(fase), sin(fase), 0];

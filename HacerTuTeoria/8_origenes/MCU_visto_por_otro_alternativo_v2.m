@@ -4,7 +4,8 @@
 % aceleración evaluada en A debería estar rotada respecto al valor que
 % procede del SRIC.
 
-% 20.09. ¡Este enfoque también ha funcionado!
+% 20.09. Este enfoque también ha funcionado! Y con la prueba de recuperar
+% v_ca_calc ha derrotado al enfoque de V1.
 
 clear;
 
@@ -49,11 +50,13 @@ iter = 0;
 while iter < num_iters
     
     if iter == 2500
-        abd = 2131;
+        xxx = norm(v_ba);
+        v_ca_calc = Vel_Addition_Law(v_ba, -v_cb)
+        norm_v_ca_calc = norm(v_ca_calc)
     end
     
     a = -a_abs * [cos(fase), sin(fase), 0];
-    dv = a * dt_prim;
+    dv = a * dt_prim;  
     
     % Puedo sacar la rotación de Wigner con v_cb que nunca cambia y v_ca que
     % es de fiar, esto es visto desde "C", pero mientras las velocidades
@@ -82,6 +85,6 @@ while iter < num_iters
     iter = iter + 1; 
 end
 
-fase_final = fase - 2 * pi
+fase_final = fase - 2 * pi;
 %precesion_total = precesion_acum
 v_ba_final  = v_ba
