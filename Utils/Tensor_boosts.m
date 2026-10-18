@@ -9,9 +9,14 @@ function T_boost_v = Tensor_boosts(v)
 B = zeros(4);
 
 speed = norm(v);
-v_norm = v / speed;
-Sigma =  1 / sqrt(1-speed^2);
-
+if (speed > 0)
+    v_norm = v / speed;
+    Sigma =  1 / sqrt(1-speed^2);
+else
+    T_boost_v = eye(4);
+    return
+end
+    
 B(1,1) = Sigma;
 
 B(2,1) =  - Sigma * v(1);

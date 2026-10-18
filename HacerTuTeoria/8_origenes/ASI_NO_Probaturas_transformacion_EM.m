@@ -43,7 +43,7 @@ a_sric = a_abs / gamma;
 
 v_ca_ini = v * [-sin(fase_ini), cos(fase_ini), 0];
 
-% Tiene que estar alineada con `u` para que la transformación de
+% Tiene que estar alineada con `u` para lorentque la transformación de
 % velocidades inicial no lo joda todo!
 v_ba_ini = Vel_Addition_Law(v_ca_ini, -v_cb)
 v_ba = v_ba_ini;
