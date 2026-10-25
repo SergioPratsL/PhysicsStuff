@@ -1,10 +1,17 @@
-function BispinorBoosteado = BoostBispinor(bispinor, v)
+function BispinorBoosteado = BoostBispinor(bispinor, u)
 % Aplica boosts a bispinors de Dirac
+% 18.10.2026 Esto parece que no es que cambie el observador de la 
+% misma onda sino que empuja el boost a velocidad v, esto es absurdo
+% y acaba aquí!
 
-if (norm(v) == 0)
+
+if (norm(u) == 0)
     BispinorBoosteado = bispinor;
     return
 end
+
+% 18.10.2026. Forma más fácil de arreglar la ñapa.
+v = -u;
 
 v_norm = v / norm(v);
 rapidez = atanh(norm(v));
@@ -12,7 +19,9 @@ rapidez_vect = rapidez * v_norm;
 
 expM = MatrizBoostSpinDirac(rapidez_vect);
 
-BispinorBoosteado = expM * bispinor';
+%BispinorBoosteado = expM * bispinor';
+% Gemini 25.10.2026
+BispinorBoosteado = expM * bispinor.';
 
 
 % Las pruebas parece que dan peor resultado que mi función.

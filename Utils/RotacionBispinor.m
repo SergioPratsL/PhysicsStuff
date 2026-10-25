@@ -6,4 +6,4 @@ eje_norm = eje / norm(eje);
 
 expM = MatrizRotacionSpinDirac(eje_norm, radianes);
 
-spin_rotado = expM * spin';
+spin_rotado = expM * spin.';

@@ -76,41 +76,45 @@ dif_ang = angulo - angulo_2;
 
 v_test_again = (RW * v_test_rot.').';
 
+dif_v_test = v_test - v_test_again
+
 % Pruebas del diario 5 que no se llegaron a hacer:
 p0 = [0, 0, 0];
  
-% % Parece que la rotación en la Y no es diferente que en la X
-% spin_base = [1, 0];   
-% bispinor = DiracSpinorPlainWave(p0, spin_base)
-% eje = [1, 1, 0] / sqrt(2);
+% % % Parece que la rotación en la Y no es diferente que en la X
+% % spin_base = [1, 0];   
+% % bispinor = DiracSpinorPlainWave(p0, spin_base)
+% % eje = [1, 1, 0] / sqrt(2);
+% % radianes = pi/2;
+% % bispinor_rot = RotacionBispinor(bispinor, eje, radianes)
+% % sp_rot = bispinor_rot(1:2);
+% % dir_rotada = SpinorToVector(sp_rot')
+% 
+% spin_base = [1, 1] / sqrt(2);   
+% dir_ini =  SpinorToVector(spin_base)
+% bispinor = DiracSpinorPlainWave(p0, spin_base);
+% eje = [0, 1, 1] / sqrt(2);
 % radianes = pi/2;
-% bispinor_rot = RotacionBispinor(bispinor, eje, radianes)
+% bispinor_rot = RotacionBispinor(bispinor, eje, radianes);
 % sp_rot = bispinor_rot(1:2);
 % dir_rotada = SpinorToVector(sp_rot')
-
-spin_base = [1, 1] / sqrt(2);   
-dir_ini =  SpinorToVector(spin_base)
-bispinor = DiracSpinorPlainWave(p0, spin_base);
-eje = [0, 1, 1] / sqrt(2);
-radianes = pi/2;
-bispinor_rot = RotacionBispinor(bispinor, eje, radianes);
-sp_rot = bispinor_rot(1:2);
-dir_rotada = SpinorToVector(sp_rot')
-
-% ~Pruebas del diario 5 que no se llegaron a hacer:
-% ... la verdad es que mucho más debería hacer, estas pruebas
-% solo sirven para bichus en reposo...
+% 
+% % ~Pruebas del diario 5 que no se llegaron a hacer:
+% % ... la verdad es que mucho más debería hacer, estas pruebas
+% % solo sirven para bichus en reposo...
 
 p_i = fGamma(v_i) * v_i;
 Phi_a = DiracSpinorPlainWave(p_i, spinor_base)
 
 % Ojo, si no conjugas eel Phi_b, o sea, si haces Phi_b.', da mal!
 Phi_b = BoostBispinor(Phi_a, -v_ba);
-Phi_c = BoostBispinor(Phi_b', v_bc);
-Phi_a_again_rot = (BoostBispinor(Phi_c', v_ca)).';
+Phi_c = BoostBispinor(Phi_b.', v_bc);
+Phi_a_again_rot = (BoostBispinor(Phi_c.', v_ca)).';
 
 Phi_a_again = (RotacionBispinor(Phi_a_again_rot, dir_rot, -angulo)).'
 
+n1 = norm(Phi_a);
+n2 = norm(Phi_a_again);
 
 
 

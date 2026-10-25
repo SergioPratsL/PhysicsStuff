@@ -168,13 +168,13 @@ p0 = [0, 0, 0];
 % v1 = [0.4, 0, 0];
 % Sigma1 = fGamma(v1);
 % bispinor1 = DiracSpinorPlainWave(Sigma1*v1, spin_base)
-% mom4_1 = MomentoEnergiaBispinor(bispinor1)
+% mom4_1 = CorrientesSpinor(bispinor1)
 % veloc_1 = mom4_1(2:4)/mom4_1(1)
 % 
 % v2 = 0.4*[sqrt(3)/2, .5, 0];
 % Sigma2 = fGamma(v2);
 % bispinor2 = DiracSpinorPlainWave(Sigma2*v2, spin_base)
-% mom4_2 = MomentoEnergiaBispinor(bispinor2)
+% mom4_2 = CorrientesSpinor(bispinor2)
 % veloc_2 = mom4_2(2:4)/mom4_2(1)
 % La fase relativa cambia pi/6 entre esto dos bispinors, es decir, 30ª
 
@@ -182,7 +182,7 @@ p0 = [0, 0, 0];
 % v2 = 0.4*[-0.75, .25*sqrt(3), 0.5];
 % Sigma2 = fGamma(v2);
 % bispinor2 = DiracSpinorPlainWave(Sigma2*v2, spin_base)
-% mom4_2 = MomentoEnergiaBispinor(bispinor2)
+% mom4_2 = CorrientesSpinor(bispinor2)
 % veloc_2 = mom4_2(2:4)/mom4_2(1)
 % Parece que el operador alfa hace su trabajo muy bien
 

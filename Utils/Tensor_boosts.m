@@ -6,6 +6,8 @@ function T_boost_v = Tensor_boosts(v)
 
 % Fuente: https://en.wikipedia.org/wiki/Lorentz_transformation#Contravariant_vectors
 
+% 18.10.2026. Da miedito pero parece que está bien.
+
 B = zeros(4);
 
 speed = norm(v);

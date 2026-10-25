@@ -13,6 +13,8 @@ end
 
 if index == 2
     Gamma = [0,0,0,-1i; 0,0,1i,0; 0,1i,0,0; -1i,0,0,0];
+    % 25.10.2026. Locura
+    %Gamma = -Gamma;
 end
 
 if index == 3
